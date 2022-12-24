@@ -3,6 +3,19 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# Custom
+__extra__/
+CKPTS/
+*.jpg
+*.jpeg
+*.tiff
+*.png
+*.avi
+*.mp4
+*.npy
+*.pkl
+*.pickle
+
 # C extensions
 *.so
 
