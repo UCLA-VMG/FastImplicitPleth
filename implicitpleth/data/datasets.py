@@ -3,7 +3,7 @@ import numpy as np
 import imageio.v2 as iio2
 
 class VideoGridDataset(object):
-	def __init__(self, video_path, num_frames=900, img_str='rgbd_rgb_', ext='.png', verbose=True):
+	def __init__(self, video_path, num_frames=900, start_frame=0,img_str='rgbd_rgb_', ext='.png', verbose=True):
 		""" Video Dataset
 
 		Args:
@@ -13,15 +13,16 @@ class VideoGridDataset(object):
 		self.video_path = video_path
 		self.img_str = img_str
 		self.ext = ext
+		self.start_frame = start_frame
 		self.num_frames = num_frames
 
 		self.verbose: print(f'Reading 300 frames from {self.video_path}')
 		if os.path.isfile(self.video_path):
-			self.vid = iio2.mimread(self.video_path)[:self.num_frames]
+			self.vid = iio2.mimread(self.video_path)[self.start_frame:self.start_frame+self.num_frames]
 			self.vid = np.transpose(self.vid, (1,2,0,3)) # R C T Ch
 		elif os.path.isdir(self.video_path):
 			self.vid = []
-			for frame_num in range(self.num_frames):
+			for frame_num in range(self.start_frame, self.start_frame+self.num_frames):
 				self.vid.append(iio2.imread(os.path.join(self.video_path, self.img_str+str(frame_num)+self.ext)))
 			self.vid = np.stack(self.vid, axis=2) # R C T Ch
 		else:

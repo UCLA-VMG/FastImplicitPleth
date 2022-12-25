@@ -1,9 +1,10 @@
 {
 	"device": "cuda",
 	"data":{
-		"batch_size":8192,
-		"trace_batch_size":8192,
-		"num_frames":300,
+		"batch_size":16384,
+		"trace_batch_size":16384,
+		"start_frame":80,
+		"num_frames":64,
 		"shuffle":true,
 		"norm_value": 255
 	},
@@ -20,16 +21,31 @@
 	},
 	"encoding": {
 		"otype": "HashGrid",
-		"input_dims": 3,
+		"input_dims": 2,
 		"n_levels": 32,
 		"n_features_per_level": 2,
 		"log2_hashmap_size": 22,
 		"base_resolution": 16,
 		"per_level_scale": 1.5
 	},
-	"network": {
+	"time_network": {
+		"otype": "CutlassMLP",
+		"activation": "Sine",
+		"output_activation": "None",
+		"n_neurons": 64,
+		"n_hidden_layers": 2,
+		"output_dims": 20
+	},
+	"spatial_network": {
+		"input_dims": 2,
 		"hidden_dims": 64,
-		"output_dims": 3
+		"n_hidden": 1,
+		"outermost_linear": true,
+		"output_dims": 3,
+		"first_omega_0": 1,
+		"hidden_omega_0": 1.0,
+		"L_min": 0,
+		"L_max": 10
 	},
 	"ckpt_save": {
 		"dir": null,
@@ -38,7 +54,7 @@
 	},
 	"trace": {
 		"plot": false,
-		"folder": "linear_sine_videos",
+		"folder": "motion",
 		"file_tag": "epoch_",
 		"ext": ".avi"
 	}

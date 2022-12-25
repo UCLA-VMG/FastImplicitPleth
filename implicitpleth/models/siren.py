@@ -29,9 +29,6 @@ class Siren(torch.nn.Module):
         self.net = torch.nn.Sequential(*self.net)
 
     def forward(self, coords, detach=False):
-        if detach:
-            # Allows to take derivative w.r.t. input
-            coords = coords.clone().detach().requires_grad_(True) 
         out = self.net(coords)
         return out
     
@@ -64,9 +61,9 @@ class Siren(torch.nn.Module):
 
         return activations
 
-class SirenPhaseEncodingMotion(torch.nn.Module):
+class SirenPhaseEncodingMotionSpatioTemporal(torch.nn.Module):
     def __init__(self, in_features, hidden_features, hidden_layers, \
-                 out_features, outermost_linear=False, 
+                 out_features, outermost_linear=True, 
                  first_omega_0=30, hidden_omega_0=30., L_min=0, L_max=10):
         super().__init__()
         self.L_max = L_max
@@ -93,14 +90,34 @@ class SirenPhaseEncodingMotion(torch.nn.Module):
         coords = coords.clone().detach().requires_grad_(True) # allows to take derivative w.r.t. input
                 
         # Time coordinates
-        coords1 = positional_encoding(coords[:,:,2:3], L_max = self.L_max, L_min = self.L_min)
+        coords1 = positional_encoding(coords[...,2:3], L_max = self.L_max, L_min = self.L_min)
         l1a_o = self.l1a(coords1)
         l2a_o = self.l2a(l1a_o)
-        l3a_o = self.l3a(l2a_o)
+        phase = self.l3a(l2a_o)
 
         # Spatial Coordinates
-        coords2 = positional_encoding_phase(coords[:,:,0:2], l3a_o, L_max = self.L_max, L_min = self.L_min)
+        coords2 = positional_encoding_phase(coords[...,0:2], phase, L_max = self.L_max, L_min = self.L_min)
         l1b_o = self.l1b(coords2)
         l2b_o = self.l2b(l1b_o)
         
         return l2b_o, coords1, coords2
+
+class SirenPhaseEncodingMotionSpatial(torch.nn.Module):
+    def __init__(self, in_features, hidden_features, n_hidden, \
+                 out_features, outermost_linear=True, 
+                 first_omega_0=30, hidden_omega_0=30., L_min=0, L_max=10):
+        super().__init__()
+        self.L_max = L_max
+        self.L_min = L_min
+    
+        # Positional Implicit Network to generate x-y based color info based on a phase change
+        self.spatial_siren = Siren((self.L_max-self.L_min)*2*in_features, hidden_features,
+                                    out_features, n_hidden, outermost_linear,
+                                    first_omega_0, hidden_omega_0)
+
+    def forward(self, coords, phase):
+        # coords = coords.clone().detach().requires_grad_(True) # allows to take derivative w.r.t. input
+        # Spatial Coordinates
+        coords2 = positional_encoding_phase(coords, phase, L_max = self.L_max, L_min = self.L_min)
+        out = self.spatial_siren(coords2)
+        return out, coords2
