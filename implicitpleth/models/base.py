@@ -63,28 +63,3 @@ class SineLayer(torch.nn.Module):
         # For visualization of activation distributions
         intermediate = self.omega_0 * self.linear(input)
         return torch.sin(intermediate), intermediate
-
-class Siren(torch.nn.Module):
-    def __init__(self, in_features, hidden_features, out_features, 
-                 outermost_linear=True, first_omega_0=30, hidden_omega_0=30.):
-        super().__init__()
-
-        self.l1 = SineLayer(in_features, hidden_features, 
-                                      is_first=True, omega_0=first_omega_0)
-        self.l2 = SineLayer(hidden_features, hidden_features, 
-                                      is_first=False, omega_0=hidden_omega_0)
-        if outermost_linear:
-            self.final_linear = torch.nn.Linear(hidden_features, out_features)
-            with torch.no_grad():
-                self.final_linear.weight.uniform_(-np.sqrt(6 / hidden_features) / hidden_omega_0, 
-                                                np.sqrt(6 / hidden_features) / hidden_omega_0)
-        else:
-            self.final_linear = SineLayer(hidden_features, out_features, 
-                                          is_first=False, omega_0=hidden_omega_0)
-    
-    def forward(self, coords):
-        l1_o = self.l1(coords.float())
-        l2_o = self.l2(l1_o)
-        out = self.final_linear(l2_o)
-
-        return out, {'sine1out':l1_o, 'sine2out':l2_o}

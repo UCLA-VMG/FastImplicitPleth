@@ -89,18 +89,27 @@ def trace_video_tqdm(model, dataset, dataloader, device, plot=True,
         if verbose: print(f'Video Saved to {save_path}')
     del temp
 
-def positional_encoding_phase(inp, phase=None, L_max = 10, L_min = 0):
-    if phase is None:
-        phase = torch.zeros_like(inp).to(inp.device)
-    
+def positional_encoding(inp, L_max = 10, L_min = 0):
     noDims = inp.shape[2]
     ctz = 0
     for l in range(L_min,L_max):
         val = 2**l
+        for dd in range(noDims):
+            if ctz == 0:
+                p_enc_grid = torch.cat((torch.sin(np.pi*val*inp[:,:,dd:dd+1]),torch.cos(np.pi*val*inp[:,:,dd:dd+1])),dim=-1)
+                ctz = 1
+            else:
+                p_enc_grid = torch.cat((p_enc_grid,torch.sin(np.pi*val*inp[:,:,dd:dd+1]),torch.cos(np.pi*val*inp[:,:,dd:dd+1])),dim=-1)
+    return p_enc_grid
 
+
+def positional_encoding_phase(inp, phase, L_max = 10, L_min = 0):
+    noDims = inp.shape[2]
+    ctz = 0
+    for l in range(L_min,L_max):
+        val = 2**l
         base_ix = noDims*(l-L_min)
         for dd in range(noDims):
-            
             if ctz == 0:
                 p_enc_grid = torch.cat((torch.sin(np.pi*val*inp[:,:,dd:dd+1]+phase[:,:,base_ix+dd:base_ix+dd+1]),torch.cos(np.pi*val*inp[:,:,dd:dd+1]+phase[:,:,base_ix+dd:base_ix+dd+1])),dim=-1)
                 ctz = 1
