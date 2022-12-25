@@ -4,6 +4,7 @@ __pycache__/
 *$py.class
 
 # Custom
+mmhealth_postprocess
 __extra__/
 CKPTS/
 *.jpg
