@@ -10,7 +10,7 @@ import argparse
 
 from ..models.base import MLP
 from ..data.datasets import VideoGridDataset
-from ..utils.utils import trace_video, trace_video_tqdm, Dict2Class, positional_encoding_phase
+from ..utils.utils import trace_video, Dict2Class
 
 def parse_arguments():
     parser = argparse.ArgumentParser(description='Train Siren with Hash Grid Encodings.')
@@ -21,18 +21,16 @@ def parse_arguments():
     return parser.parse_args()
 
 class CombineNet(torch.nn.Module):
-    def __init__(self, model_1, model_2):#, L_min, L_max):
+    def __init__(self, model_1, model_2):
         super().__init__()
-
         self.model_1 = model_1
-        # self.pos_enc = positional_encoding_phase
         self.model_2 = model_2
-        # self.L_min = L_min
-        # self.L_max = L_max
+
     
     def forward(self, coords):
-        double_dims = torch.cat((coords[...,2:3],torch.zeros_like(coords[...,2:3]).to(coords.device)), dim=-1)
-        delta = self.model_1(double_dims)
+        # double_dims = torch.cat((coords[...,2:3],torch.zeros_like(coords[...,2:3]).to(coords.device)), dim=-1)
+        # delta = self.model_1(double_dims)
+        delta = self.model_1(coords)
         inp_model_2 = coords[...,0:2] + delta.float()
         out = self.model_2(inp_model_2.to(torch.device("cuda:1")))
         return out.to(torch.device("cuda:0")), None#{'delta': delta, 'pos_enc': pos_enc}
@@ -52,9 +50,8 @@ def main(args):
                                                   args.time_encoding, args.time_network)
     spatial_to_rgb = tcnn.NetworkWithInputEncoding(args.spatial_encoding["input_dims"], args.spatial_network["output_dims"], 
                                                   args.spatial_encoding, args.spatial_network)
-    model = CombineNet(time_to_phase, spatial_to_rgb)#, args.spatial_network["L_min"], args.spatial_network["L_max"])
+    model = CombineNet(time_to_phase, spatial_to_rgb)
     model.to_gpu()
-    # model.to(args.device)
     if args.verbose: print(time_to_phase)
     if args.verbose: print(spatial_to_rgb)
 

@@ -21,8 +21,8 @@
 	},
 	"time_encoding": {
 		"otype": "HashGrid",
-		"input_dims": 2,
-		"n_levels": 16,
+		"input_dims": 3,
+		"n_levels": 8,
 		"n_features_per_level": 2,
 		"log2_hashmap_size": 24,
 		"base_resolution": 16,
@@ -31,7 +31,7 @@
 	"time_network": {
 		"otype": "FullyFusedMLP",
 		"activation": "ReLU",
-		"output_activation": "none",
+		"output_activation": "tanh",
 		"n_neurons": 64,
 		"n_hidden_layers": 2,
 		"output_dims": 2
@@ -39,7 +39,7 @@
 	"spatial_encoding": {
 		"otype": "HashGrid",
 		"input_dims": 2,
-		"n_levels": 16,
+		"n_levels": 8,
 		"n_features_per_level": 2,
 		"log2_hashmap_size": 24,
 		"base_resolution": 16,
@@ -60,7 +60,7 @@
 	},
 	"trace": {
 		"plot": false,
-		"folder": "motion_300_delta_hash24",
+		"folder": "motion_300_delta_3dimoffset_8nlevels_tanh",
 		"file_tag": "epoch_",
 		"ext": ".avi"
 	}
