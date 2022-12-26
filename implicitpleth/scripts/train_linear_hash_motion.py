@@ -21,21 +21,25 @@ def parse_arguments():
     return parser.parse_args()
 
 class CombineNet(torch.nn.Module):
-    def __init__(self, model_1, model_2, L_min, L_max):
+    def __init__(self, model_1, model_2):#, L_min, L_max):
         super().__init__()
 
         self.model_1 = model_1
-        self.pos_enc = positional_encoding_phase
+        # self.pos_enc = positional_encoding_phase
         self.model_2 = model_2
-        self.L_min = L_min
-        self.L_max = L_max
+        # self.L_min = L_min
+        # self.L_max = L_max
     
     def forward(self, coords):
         double_dims = torch.cat((coords[...,2:3],torch.zeros_like(coords[...,2:3]).to(coords.device)), dim=-1)
-        phase = self.model_1(double_dims)
-        pos_enc = self.pos_enc(coords[...,0:2], phase.float(), self.L_max, self.L_min)
-        out = self.model_2(pos_enc)
-        return out, {'phase': phase, 'pos_enc': pos_enc}
+        delta = self.model_1(double_dims)
+        inp_model_2 = coords[...,0:2] + delta.float()
+        out = self.model_2(inp_model_2.to(torch.device("cuda:1")))
+        return out.to(torch.device("cuda:0")), None#{'delta': delta, 'pos_enc': pos_enc}
+    
+    def to_gpu(self):
+        self.model_1.to(torch.device("cuda:0"))
+        self.model_2.to(torch.device("cuda:1"))
 
 
 def main(args):
@@ -44,25 +48,19 @@ def main(args):
     dloader = torch.utils.data.DataLoader(dset, batch_size=args.data["batch_size"], shuffle=True)
     trace_loader = torch.utils.data.DataLoader(dset, batch_size=args.data["trace_batch_size"], shuffle=False)
 
-    # encoding = tcnn.Encoding(args.encoding["input_dims"], args.encoding)=
-    # time_net = tcnn.Network()
-    time_to_phase = tcnn.NetworkWithInputEncoding(args.encoding["input_dims"], args.time_network["output_dims"], 
-                                                  args.encoding, args.time_network)
-    spatial_to_rgb = MLP(args.spatial_network["input_dims"], 
-                         args.spatial_network["hidden_dims"],
-                         args.spatial_network["n_hidden"], 
-                         args.spatial_network["output_dims"],
-                         args.spatial_network["activation"],
-                         args.spatial_network["act_kwargs"],
-                         args.spatial_network["bias"])
-    model = CombineNet(time_to_phase, spatial_to_rgb, args.spatial_network["L_min"], args.spatial_network["L_max"])
-    model.to(args.device)
+    time_to_phase = tcnn.NetworkWithInputEncoding(args.time_encoding["input_dims"], args.time_network["output_dims"], 
+                                                  args.time_encoding, args.time_network)
+    spatial_to_rgb = tcnn.NetworkWithInputEncoding(args.spatial_encoding["input_dims"], args.spatial_network["output_dims"], 
+                                                  args.spatial_encoding, args.spatial_network)
+    model = CombineNet(time_to_phase, spatial_to_rgb)#, args.spatial_network["L_min"], args.spatial_network["L_max"])
+    model.to_gpu()
+    # model.to(args.device)
     if args.verbose: print(time_to_phase)
     if args.verbose: print(spatial_to_rgb)
 
-    opt_time = torch.optim.Adam(time_to_phase.parameters(), lr=args.opt["lr"], \
+    opt_time = torch.optim.Adam(time_to_phase.parameters(), lr=args.opt["lr"],
                                betas=(args.opt["beta1"], args.opt["beta2"]), eps=args.opt["eps"])
-    opt_spatial = torch.optim.Adam(spatial_to_rgb.parameters(), lr=args.opt["lr"], weight_decay=args.opt["l2_reg"], \
+    opt_spatial = torch.optim.Adam(spatial_to_rgb.parameters(), lr=args.opt["lr"], #weight_decay=args.opt["l2_reg"],
                                betas=(args.opt["beta1"], args.opt["beta2"]), eps=args.opt["eps"])
     if args.trace["folder"] is not None:
         os.makedirs(args.trace["folder"], exist_ok=True)
@@ -74,8 +72,8 @@ def main(args):
         spatial_to_rgb.train()
         time_to_phase.train()
         for count, item in tqdm(enumerate(dloader),total=len(dloader)):
-            loc = item["loc"].half().to(args.device)
-            pixel = item["pixel"].half().to(args.device)/args.data["norm_value"]
+            loc = item["loc"].half().to(torch.device("cuda:0"))
+            pixel = item["pixel"].half().to(torch.device("cuda:0"))/args.data["norm_value"]
             output, _ = model(loc)
             opt_time.zero_grad()
             opt_spatial.zero_grad()
