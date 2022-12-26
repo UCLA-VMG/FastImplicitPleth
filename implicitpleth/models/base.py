@@ -64,12 +64,21 @@ class SineLayer(torch.nn.Module):
         intermediate = self.omega_0 * self.linear(input)
         return torch.sin(intermediate), intermediate
 
+class SineAct(torch.nn.Module):
+    def __init__(self):
+        super().__init__()
+    
+    def forward(self, inp):
+        return torch.sin(inp)
+
 class MLP(torch.nn.Module):
     def __init__(self, in_features, hidden_features, n_hidden, out_features,
                  activation="ReLU", act_kwargs=None, bias=True):
         super().__init__()
         if activation.lower() == "relu":
             self.act = torch.nn.ReLU()
+        elif activation.lower() == "sine":
+            self.act = SineAct()
         elif activation.lower() == "leakyrelu":
             self.act = torch.nn.LeakyReLU(act_kwargs["negative_slope"])
         elif activation.lower() == "sigmoid":

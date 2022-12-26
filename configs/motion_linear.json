@@ -4,7 +4,7 @@
 		"batch_size":16384,
 		"trace_batch_size":16384,
 		"start_frame":80,
-		"num_frames":64,
+		"num_frames":300,
 		"shuffle":true,
 		"norm_value": 255
 	},
@@ -24,13 +24,13 @@
 		"input_dims": 2,
 		"n_levels": 32,
 		"n_features_per_level": 2,
-		"log2_hashmap_size": 22,
+		"log2_hashmap_size": 24,
 		"base_resolution": 16,
 		"per_level_scale": 1.5
 	},
 	"time_network": {
-		"otype": "CutlassMLP",
-		"activation": "Sine",
+		"otype": "FullyFusedMLP",
+		"activation": "ReLU",
 		"output_activation": "None",
 		"n_neurons": 64,
 		"n_hidden_layers": 2,
@@ -42,7 +42,9 @@
 		"n_hidden": 3,
 		"output_dims": 3,
 		"activation": "relu",
-		"act_kwargs": null,
+		"act_kwargs": {
+			
+		},
 		"bias": true,
 		"L_min": 0,
 		"L_max": 10
@@ -54,7 +56,7 @@
 	},
 	"trace": {
 		"plot": false,
-		"folder": "motion_3hidden_relu",
+		"folder": "motion_300_3hidden_relu_relu",
 		"file_tag": "epoch_",
 		"ext": ".avi"
 	}
