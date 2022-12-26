@@ -1,10 +1,10 @@
 {
 	"device": "cuda",
 	"data":{
-		"batch_size":8192,
-		"trace_batch_size":8192,
+		"batch_size":16384,
+		"trace_batch_size":16384,
 		"start_frame":80,
-		"num_frames":300,
+		"num_frames":64,
 		"shuffle":true,
 		"norm_value": 255
 	},
@@ -37,13 +37,13 @@
 		"output_dims": 20
 	},
 	"spatial_network": {
-		"input_dims": 2,
+		"input_dims": 40,
 		"hidden_dims": 64,
 		"n_hidden": 3,
-		"outermost_linear": true,
 		"output_dims": 3,
-		"first_omega_0": 1,
-		"hidden_omega_0": 1.0,
+		"activation": "relu",
+		"act_kwargs": null,
+		"bias": true,
 		"L_min": 0,
 		"L_max": 10
 	},
@@ -54,7 +54,7 @@
 	},
 	"trace": {
 		"plot": false,
-		"folder": "motion_300_3hidden_sine",
+		"folder": "motion_3hidden_relu",
 		"file_tag": "epoch_",
 		"ext": ".avi"
 	}

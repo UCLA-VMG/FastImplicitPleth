@@ -63,3 +63,32 @@ class SineLayer(torch.nn.Module):
         # For visualization of activation distributions
         intermediate = self.omega_0 * self.linear(input)
         return torch.sin(intermediate), intermediate
+
+class MLP(torch.nn.Module):
+    def __init__(self, in_features, hidden_features, n_hidden, out_features,
+                 activation="ReLU", act_kwargs=None, bias=True):
+        super().__init__()
+        if activation.lower() == "relu":
+            self.act = torch.nn.ReLU()
+        elif activation.lower() == "leakyrelu":
+            self.act = torch.nn.LeakyReLU(act_kwargs["negative_slope"])
+        elif activation.lower() == "sigmoid":
+            self.act = torch.nn.Sigmoid()
+        elif activation.lower() == "tanh":
+            self.act = torch.nn.Tanh()
+        else:
+            NotImplementedError
+        self.net = []
+        # First layer
+        self.net.append(torch.nn.Linear(in_features, hidden_features, bias=bias))
+        self.net.append(self.act)
+        # All the other layers
+        for _ in range(n_hidden):
+            self.net.append(torch.nn.Linear(hidden_features, hidden_features, bias=bias))
+            self.net.append(self.act)
+        self.net.append(torch.nn.Linear(hidden_features, out_features, bias=bias))
+        self.net = torch.nn.Sequential(*self.net)
+
+    def forward(self, coords, detach=False):
+        out = self.net(coords)
+        return out

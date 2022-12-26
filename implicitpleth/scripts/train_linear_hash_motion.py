@@ -8,9 +8,9 @@ import torch.utils.data
 import tinycudann as tcnn
 import argparse
 
-from ..models.siren import SirenPhaseEncodingMotionSpatial
+from ..models.base import MLP
 from ..data.datasets import VideoGridDataset
-from ..utils.utils import trace_video, trace_video_tqdm, Dict2Class
+from ..utils.utils import trace_video, trace_video_tqdm, Dict2Class, positional_encoding_phase
 
 def parse_arguments():
     parser = argparse.ArgumentParser(description='Train Siren with Hash Grid Encodings.')
@@ -21,17 +21,20 @@ def parse_arguments():
     return parser.parse_args()
 
 class CombineNet(torch.nn.Module):
-    def __init__(self, model_1, model_2):
+    def __init__(self, model_1, model_2, L_min, L_max):
         super().__init__()
 
         self.model_1 = model_1
+        self.pos_enc = positional_encoding_phase
         self.model_2 = model_2
+        self.L_min = L_min
+        self.L_max = L_max
     
     def forward(self, coords):
         double_dims = torch.cat((coords[...,2:3],torch.zeros_like(coords[...,2:3]).to(coords.device)), dim=-1)
         phase = self.model_1(double_dims)
-        # phase = self.model_1(coords[...,2:3])
-        out, pos_enc = self.model_2(coords[...,0:2], phase.float())
+        pos_enc = self.pos_enc(coords[...,0:2], phase.float(), self.L_max, self.L_min)
+        out = self.model_2(pos_enc)
         return out, {'phase': phase, 'pos_enc': pos_enc}
 
 
@@ -45,16 +48,14 @@ def main(args):
     # time_net = tcnn.Network()
     time_to_phase = tcnn.NetworkWithInputEncoding(args.encoding["input_dims"], args.time_network["output_dims"], 
                                                   args.encoding, args.time_network)
-    spatial_to_rgb = SirenPhaseEncodingMotionSpatial(args.spatial_network["input_dims"], 
-                                                     args.spatial_network["hidden_dims"],
-                                                     args.spatial_network["n_hidden"], 
-                                                     args.spatial_network["output_dims"],
-                                                     args.spatial_network["outermost_linear"],
-                                                     args.spatial_network["first_omega_0"], 
-                                                     args.spatial_network["hidden_omega_0"],
-                                                     args.spatial_network["L_min"],
-                                                     args.spatial_network["L_max"])
-    model = CombineNet(time_to_phase, spatial_to_rgb)
+    spatial_to_rgb = MLP(args.spatial_network["input_dims"], 
+                         args.spatial_network["hidden_dims"],
+                         args.spatial_network["n_hidden"], 
+                         args.spatial_network["output_dims"],
+                         args.spatial_network["activation"],
+                         args.spatial_network["act_kwargs"],
+                         args.spatial_network["bias"])
+    model = CombineNet(time_to_phase, spatial_to_rgb, args.spatial_network["L_min"], args.spatial_network["L_max"])
     model.to(args.device)
     if args.verbose: print(time_to_phase)
     if args.verbose: print(spatial_to_rgb)
