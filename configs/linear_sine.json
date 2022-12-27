@@ -35,7 +35,7 @@
 	"ckpt_save": {
 		"dir": null,
 		"file": "epoch_",
-		"ext": ".avi"
+		"ext": ".pth"
 	},
 	"trace": {
 		"plot": false,

@@ -20,7 +20,7 @@
 		"eps": 1e-15,
 		"l2_reg": 1e-6
 	},
-	"spatiotemporal_encoding": {
+	"motion_spatiotemporal_encoding": {
 		"otype": "HashGrid",
 		"input_dims": 3,
 		"n_levels": 8,
@@ -29,7 +29,7 @@
 		"base_resolution": 16,
 		"per_level_scale": 1.5
 	},
-	"spatiotemporal_network": {
+	"motion_spatiotemporal_network": {
 		"otype": "FullyFusedMLP",
 		"activation": "ReLU",
 		"output_activation": "tanh",
@@ -37,7 +37,7 @@
 		"n_hidden_layers": 2,
 		"output_dims": 2
 	},
-	"deltaspatial_encoding": {
+	"motion_deltaspatial_encoding": {
 		"otype": "HashGrid",
 		"input_dims": 2,
 		"n_levels": 8,
@@ -46,7 +46,7 @@
 		"base_resolution": 16,
 		"per_level_scale": 1.5
 	},
-	"deltaspatial_network": {
+	"motion_deltaspatial_network": {
 		"otype": "FullyFusedMLP",
 		"activation": "ReLU",
 		"output_activation": "none",
@@ -57,11 +57,11 @@
 	"ckpt_save": {
 		"dir": null,
 		"file": "epoch_",
-		"ext": ".avi"
+		"ext": ".pth"
 	},
 	"trace": {
 		"plot": false,
-		"folder": "residual",
+		"folder": "residual_",
 		"file_tag": "epoch_",
 		"ext": ".avi"
 	}
