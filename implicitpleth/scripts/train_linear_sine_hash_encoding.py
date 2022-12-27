@@ -8,9 +8,9 @@ import torch.utils.data
 import tinycudann as tcnn
 import argparse
 
-from ..models.combinations import MotionNet
+from ..models.base import LinearSineNet
 from ..data.datasets import VideoGridDataset
-from ..utils.utils import trace_video, Dict2Class
+from ..utils.utils import trace_video, trace_video_tqdm, Dict2Class
 
 def parse_arguments():
     parser = argparse.ArgumentParser(description='Train Siren with Hash Grid Encodings.')
@@ -25,14 +25,16 @@ def main(args):
                             num_frames=args.data["num_frames"], start_frame=args.data["start_frame"])
     dloader = torch.utils.data.DataLoader(dset, batch_size=args.data["batch_size"], shuffle=True)
     trace_loader = torch.utils.data.DataLoader(dset, batch_size=args.data["trace_batch_size"], shuffle=False)
-    motion_model = MotionNet(args.spatiotemporal_encoding["input_dims"], args.spatiotemporal_network["output_dims"], 
-                             args.spatiotemporal_encoding, args.spatiotemporal_network,
-                             args.deltaspatial_encoding["input_dims"], args.deltaspatial_network["output_dims"], 
-                             args.deltaspatial_encoding, args.deltaspatial_network)
-    motion_model.to_device(args.motion_spatiotemporal_device, args.motion_deltaspatial_device)
-    if args.verbose: print(motion_model)
 
-    opt = torch.optim.Adam(motion_model.parameters(), lr=args.opt["lr"],
+    encoding = tcnn.Encoding(args.encoding["input_dims"], args.encoding)
+    network = LinearSineNet(encoding.n_output_dims, args.network["hidden_dims"], args.network["output_dims"])
+    model = torch.nn.Sequential(encoding, network)
+    model.to(args.device)
+    if args.verbose: print(model)
+
+    opt_enc = torch.optim.Adam(encoding.parameters(), lr=args.opt["lr"], \
+                               betas=(args.opt["beta1"], args.opt["beta2"]), eps=args.opt["eps"])
+    opt_net = torch.optim.Adam(network.parameters(), lr=args.opt["lr"], weight_decay=args.opt["l2_reg"], \
                                betas=(args.opt["beta1"], args.opt["beta2"]), eps=args.opt["eps"])
     if args.trace["folder"] is not None:
         os.makedirs(args.trace["folder"], exist_ok=True)
@@ -41,19 +43,21 @@ def main(args):
     ndigits_epoch = int(np.log10(epochs)+1)
     for epoch in range(1,epochs+1):
         train_loss = 0
-        motion_model.train()
+        model.train()
         for count, item in tqdm(enumerate(dloader),total=len(dloader)):
-            loc = item["loc"].half().to(args.motion_spatiotemporal_device)
-            pixel = item["pixel"].half().to(args.motion_spatiotemporal_device)/args.data["norm_value"]
-            output, _ = motion_model(loc)
-            opt.zero_grad()
+            loc = item["loc"].half().to(args.device)
+            pixel = item["pixel"].half().to(args.device)/args.data["norm_value"]
+            output, _ = model(loc)
+            opt_enc.zero_grad()
+            opt_net.zero_grad()
             l2_error = (output - pixel.to(output.dtype))**2
             loss = l2_error.mean()
             loss.backward()
-            opt.step()
+            opt_enc.step()
+            opt_net.step()
             train_loss += loss.item()
         print(f'Epoch: {epoch}, Loss: {train_loss/len(dloader)}', flush=True)	
-        trace_video(motion_model, dset, trace_loader, args.motion_spatiotemporal_device, \
+        trace_video(model, dset, trace_loader, args.device, \
                     save_dir=args.trace["folder"], \
                     save_file=f'{args.trace["file_tag"]}{str(epoch).zfill(ndigits_epoch)}', \
                     save_ext=args.trace["ext"],\
@@ -68,6 +72,5 @@ if __name__ == '__main__':
     dict_args.update(json_config)
     args = Dict2Class(dict_args)
     if args.verbose: print(dict_args)
-    args.motion_spatiotemporal_device = torch.device(args.motion_spatiotemporal_device)
-    args.motion_deltaspatial_device = torch.device(args.motion_deltaspatial_device)
+    args.device = torch.device(args.device)
     main(args)
