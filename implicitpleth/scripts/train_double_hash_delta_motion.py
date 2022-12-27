@@ -8,7 +8,7 @@ import torch.utils.data
 import tinycudann as tcnn
 import argparse
 
-from ..models.base import MLP
+from ..models.combinations import MotionNet
 from ..data.datasets import VideoGridDataset
 from ..utils.utils import trace_video, Dict2Class
 
@@ -20,44 +20,17 @@ def parse_arguments():
 
     return parser.parse_args()
 
-class CombineNet(torch.nn.Module):
-    def __init__(self, model_1, model_2):
-        super().__init__()
-        self.model_1 = model_1
-        self.model_2 = model_2
-
-    
-    def forward(self, coords):
-        # double_dims = torch.cat((coords[...,2:3],torch.zeros_like(coords[...,2:3]).to(coords.device)), dim=-1)
-        # delta = self.model_1(double_dims)
-        delta = self.model_1(coords)
-        inp_model_2 = coords[...,0:2] + delta.float()
-        out = self.model_2(inp_model_2.to(torch.device("cuda:1")))
-        return out.to(torch.device("cuda:0")), None#{'delta': delta, 'pos_enc': pos_enc}
-    
-    def to_gpu(self):
-        self.model_1.to(torch.device("cuda:0"))
-        self.model_2.to(torch.device("cuda:1"))
-
-
 def main(args):
     dset = VideoGridDataset(args.video_path, verbose=args.verbose, 
                             num_frames=args.data["num_frames"], start_frame=args.data["start_frame"])
     dloader = torch.utils.data.DataLoader(dset, batch_size=args.data["batch_size"], shuffle=True)
     trace_loader = torch.utils.data.DataLoader(dset, batch_size=args.data["trace_batch_size"], shuffle=False)
+    model = MotionNet(args.motion_spatiotemporal_encoding, args.motion_spatiotemporal_network,
+                             args.motion_deltaspatial_encoding, args.motion_deltaspatial_network)
+    model.to_device(args.motion_spatiotemporal_device, args.motion_deltaspatial_device)
+    if args.verbose: print(model)
 
-    time_to_phase = tcnn.NetworkWithInputEncoding(args.time_encoding["input_dims"], args.time_network["output_dims"], 
-                                                  args.time_encoding, args.time_network)
-    spatial_to_rgb = tcnn.NetworkWithInputEncoding(args.spatial_encoding["input_dims"], args.spatial_network["output_dims"], 
-                                                  args.spatial_encoding, args.spatial_network)
-    model = CombineNet(time_to_phase, spatial_to_rgb)
-    model.to_gpu()
-    if args.verbose: print(time_to_phase)
-    if args.verbose: print(spatial_to_rgb)
-
-    opt_time = torch.optim.Adam(time_to_phase.parameters(), lr=args.opt["lr"],
-                               betas=(args.opt["beta1"], args.opt["beta2"]), eps=args.opt["eps"])
-    opt_spatial = torch.optim.Adam(spatial_to_rgb.parameters(), lr=args.opt["lr"], #weight_decay=args.opt["l2_reg"],
+    opt = torch.optim.Adam(model.parameters(), lr=args.opt["lr"],
                                betas=(args.opt["beta1"], args.opt["beta2"]), eps=args.opt["eps"])
     if args.trace["folder"] is not None:
         os.makedirs(args.trace["folder"], exist_ok=True)
@@ -66,22 +39,19 @@ def main(args):
     ndigits_epoch = int(np.log10(epochs)+1)
     for epoch in range(1,epochs+1):
         train_loss = 0
-        spatial_to_rgb.train()
-        time_to_phase.train()
+        model.train()
         for count, item in tqdm(enumerate(dloader),total=len(dloader)):
-            loc = item["loc"].half().to(torch.device("cuda:0"))
-            pixel = item["pixel"].half().to(torch.device("cuda:0"))/args.data["norm_value"]
+            loc = item["loc"].half().to(args.motion_spatiotemporal_device)
+            pixel = item["pixel"].half().to(args.motion_spatiotemporal_device)/args.data["norm_value"]
             output, _ = model(loc)
-            opt_time.zero_grad()
-            opt_spatial.zero_grad()
+            opt.zero_grad()
             l2_error = (output - pixel.to(output.dtype))**2
             loss = l2_error.mean()
             loss.backward()
-            opt_time.step()
-            opt_spatial.step()
+            opt.step()
             train_loss += loss.item()
         print(f'Epoch: {epoch}, Loss: {train_loss/len(dloader)}', flush=True)	
-        trace_video(model, dset, trace_loader, args.device, \
+        trace_video(model, dset, trace_loader, args.motion_spatiotemporal_device, \
                     save_dir=args.trace["folder"], \
                     save_file=f'{args.trace["file_tag"]}{str(epoch).zfill(ndigits_epoch)}', \
                     save_ext=args.trace["ext"],\
@@ -96,5 +66,6 @@ if __name__ == '__main__':
     dict_args.update(json_config)
     args = Dict2Class(dict_args)
     if args.verbose: print(dict_args)
-    args.device = torch.device(args.device)
+    args.motion_spatiotemporal_device = torch.device(args.motion_spatiotemporal_device)
+    args.motion_deltaspatial_device = torch.device(args.motion_deltaspatial_device)
     main(args)
