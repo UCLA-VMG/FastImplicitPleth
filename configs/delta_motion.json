@@ -58,7 +58,7 @@
 		"save": true,
 		"dir": "motion",
 		"epoch_frequency": 1,
-		"file": "epoch_",
+		"file_tag": "epoch_",
 		"latest": "latest.pth",
 		"ext": ".pth"
 	},

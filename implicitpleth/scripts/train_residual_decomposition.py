@@ -17,7 +17,7 @@ def parse_arguments():
     parser.add_argument('-vp', '--video_path', required=True, type=str, help='Path to the video')
     parser.add_argument('-config', '--config_path', required=True, type=str, help='Path to the config file')
     parser.add_argument('--verbose', action='store_true', help='Verbosity')
-    parser.add_argument('--prepend_save_path', default=None, type=str, help='Verbosity')
+    parser.add_argument('--prepend_save_path', default=None, type=str, help='Prepend the save paths')
 
     return parser.parse_args()
 
@@ -164,8 +164,8 @@ def main(args):
         # Save the checkpoints
         if args.checkpoints["save"]:
             if args.verbose: print('Saving checkpoint.')
-            if epoch % args.checkpoints["epoch_frequency"]:
-                checkpoint_file = f'{args.checkpoints["latest"]}{args.checkpoints["ext"]}'
+            if epoch % args.checkpoints["epoch_frequency"] == 0:
+                checkpoint_file = f'{args.checkpoints["file_tag"]}{str(epoch).zfill(ndigits_epoch)}{args.checkpoints["ext"]}'
                 # Save as dict to maintain uniformity
                 torch.save({'model_state_dict': pleth_model.state_dict()}, 
                            os.path.join(args.checkpoints["dir"], checkpoint_file))
