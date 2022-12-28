@@ -54,7 +54,7 @@ def main(args):
     if args.trace["folder"] is not None:
         os.makedirs(args.trace["folder"], exist_ok=True)
         if args.verbose: print(f'Saving trace to {args.trace["folder"]}')
-    if args.checkpoints["dir"] is not None:
+    if args.checkpoints["save"]:
         os.makedirs(args.checkpoints["dir"], exist_ok=True)
         if args.verbose: print(f'Saving checkpoints to {args.checkpoints["dir"]}')
 
@@ -100,7 +100,7 @@ def main(args):
                         save_ext=args.trace["ext"],\
                         plot=args.trace["plot"], verbose=args.verbose)
         # Save the checkpoints
-        if args.checkpoints["dir"] is not None:
+        if args.checkpoints["save"]:
             if args.verbose: print('Saving checkpoint.')
             if epoch % args.checkpoints["epoch_frequency"]:
                 checkpoint_file = f'{args.checkpoints["latest"]}{args.checkpoints["ext"]}'

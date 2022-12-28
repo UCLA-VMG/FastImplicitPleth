@@ -55,6 +55,7 @@
 		"output_dims": 3
 	},
 	"checkpoints": {
+		"save": true,
 		"dir": "motion",
 		"epoch_frequency": 1,
 		"file": "epoch_",
