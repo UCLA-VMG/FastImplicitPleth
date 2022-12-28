@@ -34,7 +34,7 @@ def main(args):
     model = MotionNet(args.spatiotemporal_encoding, args.spatiotemporal_network,
                       args.deltaspatial_encoding, args.deltaspatial_network)
     # NOTE: By default the models are on the CPU. Call set_device() to manually specify the devices.
-    model.set_device(args.motion_spatiotemporal_device, args.motion_deltaspatial_device)
+    model.set_device(args.spatiotemporal_device, args.deltaspatial_device)
     if args.verbose: print('-'*100, flush=True)
     if args.verbose: print(model)
     if args.verbose: print('-'*100, flush=True)
@@ -94,7 +94,7 @@ def main(args):
         print(f'Epoch: {epoch}, Loss: {train_loss/len(dloader)}', flush=True)	
         # Trace the video data and save/plot the video/frames.
         if epoch >= args.trace["trace_epoch"]:
-            trace_video(model, dset, trace_loader, args.motion_spatiotemporal_device, \
+            trace_video(model, dset, trace_loader, args.spatiotemporal_device, \
                         save_dir=args.trace["folder"], \
                         save_file=f'{args.trace["file_tag"]}{str(epoch).zfill(ndigits_epoch)}', \
                         save_ext=args.trace["ext"],\
@@ -133,7 +133,7 @@ if __name__ == '__main__':
     if args.verbose: print(dict_args)
     if args.verbose: print('-'*100, flush=True)
     # Convert device string to torch.device().
-    args.motion_spatiotemporal_device = torch.device(args.motion_spatiotemporal_device)
-    args.motion_deltaspatial_device = torch.device(args.motion_deltaspatial_device)
+    args.spatiotemporal_device = torch.device(args.spatiotemporal_device)
+    args.deltaspatial_device = torch.device(args.deltaspatial_device)
     # Main routine.
     main(args)
