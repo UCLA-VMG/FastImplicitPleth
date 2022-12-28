@@ -17,6 +17,8 @@ CKPTS/
 *.pkl
 *.pth
 *.pickle
+# Used to store temporary fucntions and configs
+____temp*
 
 # C extensions
 *.so
