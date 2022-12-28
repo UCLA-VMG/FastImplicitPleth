@@ -1,6 +1,6 @@
 {
 	"spatiotemporal_device": "cuda:0",
-	"deltaspatial_device": "cuda:1",
+	"deltaspatial_device": "cuda:0",
 	"data":{
 		"batch_size":8192,
 		"trace_batch_size":8192,
