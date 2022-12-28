@@ -47,7 +47,7 @@
 		"L_min": 0,
 		"L_max": 10
 	},
-	"ckpt_save": {
+	"checkpoints": {
 		"dir": null,
 		"file": "epoch_",
 		"ext": ".pth"

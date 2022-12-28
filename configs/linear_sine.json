@@ -32,7 +32,7 @@
 		"hidden_dims": 64,
 		"output_dims": 3
 	},
-	"ckpt_save": {
+	"checkpoints": {
 		"dir": null,
 		"file": "epoch_",
 		"ext": ".pth"
