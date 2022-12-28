@@ -14,10 +14,11 @@ from ..utils.utils import trace_video, Dict2Class
 
 def parse_arguments():
     parser = argparse.ArgumentParser(description='Train Siren with Hash Grid Encodings.')
-    parser.add_argument('-vp', '--video_path', required=True, type=str, help='Path to the video')
-    parser.add_argument('-config', '--config_path', required=True, type=str, help='Path to the config file')
-    parser.add_argument('--verbose', action='store_true', help='Verbosity')
-    parser.add_argument('--prepend_save_path', default=None, type=str, help='Prepend the save paths')
+    parser.add_argument('-vp', '--video_path', required=True, type=str, help='Path to the video.')
+    parser.add_argument('-config', '--config_path', required=True, type=str, help='Path to the config file.')
+    parser.add_argument('--verbose', action='store_true', help='Verbosity.')
+    parser.add_argument('--prepend_save_path', default=None, type=str, help='Prepend the save paths for dataset automation.')
+    parser.add_argument('--prepend_load_path', default=None, type=str, help='Prepend the load paths for dataset automation.')
 
     return parser.parse_args()
 
@@ -67,6 +68,9 @@ def main(args):
                              args.motion_model["config"]["deltaspatial_encoding"], 
                              args.motion_model["config"]["deltaspatial_network"])
     # Load pre-trained weights
+    if args.prepend_load_path is not None:
+        args.motion_model["load_path"] = args.prepend_load_path + args.motion_model["load_path"]
+    if args.verbose: print(f'Loading motion model from {args.motion_model["load_path"]}')
     motion_model.load_state_dict(torch.load(args.motion_model["load_path"])["model_state_dict"])
     # Freeze the model
     motion_model.eval()

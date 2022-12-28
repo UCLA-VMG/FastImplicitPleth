@@ -14,10 +14,10 @@ from ..utils.utils import trace_video, Dict2Class
 
 def parse_arguments():
     parser = argparse.ArgumentParser(description='Train Siren with Hash Grid Encodings.')
-    parser.add_argument('-vp', '--video_path', required=True, type=str, help='Path to the video')
-    parser.add_argument('-config', '--config_path', required=True, type=str, help='Path to the config file')
-    parser.add_argument('--verbose', action='store_true', help='Verbosity')
-    parser.add_argument('--prepend_save_path', default=None, type=str, help='Prepend the save paths')
+    parser.add_argument('-vp', '--video_path', required=True, type=str, help='Path to the video.')
+    parser.add_argument('-config', '--config_path', required=True, type=str, help='Path to the config file.')
+    parser.add_argument('--verbose', action='store_true', help='Verbosity.')
+    parser.add_argument('--prepend_save_path', default=None, type=str, help='Prepend the save paths for dataset automation.')
 
     return parser.parse_args()
 

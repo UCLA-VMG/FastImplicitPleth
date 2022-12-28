@@ -24,7 +24,7 @@
 	},
 	"motion_model": {
 		"config": "configs/delta_motion.json",
-		"load_path": "v_84_2_motion/motion_model.pth"
+		"load_path": "motion/motion_model.pth"
 	},
 	"pleth_encoding": {
 		"otype": "HashGrid",
@@ -53,7 +53,7 @@
 	},
 	"trace": {
 		"plot": false,
-		"folder": "residual_lr_1e-3",
+		"folder": "residual",
 		"file_tag": "epoch_",
 		"trace_epoch": 1,
 		"ext": ".avi"
