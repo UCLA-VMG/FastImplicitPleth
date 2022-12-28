@@ -35,7 +35,9 @@ def main(args):
                       args.deltaspatial_encoding, args.deltaspatial_network)
     # NOTE: By default the models are on the CPU. Call set_device() to manually specify the devices.
     model.set_device(args.motion_spatiotemporal_device, args.motion_deltaspatial_device)
+    if args.verbose: print('-'*100, flush=True)
     if args.verbose: print(model)
+    if args.verbose: print('-'*100, flush=True)
 
     # Optimizer.
     # NOTE: When adding weight decay, make sure to split the Network and the Hash Encoding.
@@ -59,8 +61,20 @@ def main(args):
     # Get info before iterating.
     epochs = args.train["epochs"]
     ndigits_epoch = int(np.log10(epochs)+1)
+    latest_ckpt_path = os.path.join(args.checkpoints["dir"], args.checkpoints["latest"])
+    if os.path.exists(latest_ckpt_path):
+        if args.verbose: print('Loading latest checkpoint...')
+        saved_dict = torch.load(latest_ckpt_path)
+        model.load_state_dict(saved_dict["model_state_dict"])
+        if "optimizer_state_dict" in saved_dict.keys():
+            opt.load_state_dict(saved_dict["optimizer_state_dict"])
+        start_epoch = saved_dict["epoch"] + 1
+        if args.verbose: print(f'Continuing from epoch {start_epoch}.')
+    else:
+        if args.verbose: print('Start from scratch.')
+        start_epoch = 1
     # Epoch iteration.
-    for epoch in range(1,epochs+1):
+    for epoch in range(start_epoch,epochs+1):
         train_loss = 0
         model.train()
         for count, item in tqdm(enumerate(dloader),total=len(dloader)):
@@ -87,16 +101,19 @@ def main(args):
                         plot=args.trace["plot"], verbose=args.verbose)
         # Save the checkpoints
         if args.checkpoints["dir"] is not None:
+            if args.verbose: print('Saving checkpoint.')
             if epoch % args.checkpoints["epoch_frequency"]:
                 checkpoint_file = f'{args.checkpoints["latest"]}{args.checkpoints["ext"]}'
                 # Save as dict to maintain uniformity
                 torch.save({'model_state_dict': model.state_dict()}, 
                            os.path.join(args.checkpoints["dir"], checkpoint_file))
+                if args.verbose: print(f'Saved model for epoch {epoch}.')
             torch.save({
                 'epoch': epoch,
                 'model_state_dict': model.state_dict(),
                 'optimizer_state_dict': opt.state_dict(),
-                }, os.path.join(args.checkpoints["dir"],args.checkpoints["latest"]))
+                }, latest_ckpt_path)
+            if args.verbose: print('Saved latest checkpoint.')
         # Epoch demarcation
         print('-'*100, flush=True)
 
@@ -112,7 +129,9 @@ if __name__ == '__main__':
     dict_args.update(json_config)
     # Convert back to a class (dot notation).
     args = Dict2Class(dict_args)
+    if args.verbose: print('-'*100, flush=True)
     if args.verbose: print(dict_args)
+    if args.verbose: print('-'*100, flush=True)
     # Convert device string to torch.device().
     args.motion_spatiotemporal_device = torch.device(args.motion_spatiotemporal_device)
     args.motion_deltaspatial_device = torch.device(args.motion_deltaspatial_device)
