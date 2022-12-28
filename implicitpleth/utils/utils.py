@@ -17,7 +17,10 @@ def trace_video(model, dataset, dataloader, device, plot=True,
         temp = []
         for item in dataloader:
             inp = item['loc'].half().to(device)
-            temp.append(model(inp)[0].squeeze().cpu().detach().float().numpy())
+            output = model(inp) 
+            if type(output) == tuple:
+                output = output[0] 
+            temp.append(output.squeeze().cpu().detach().float().numpy())
     if verbose: print('Arranging Tensor')
     temp = np.concatenate(temp,axis=0).reshape(dataset.shape[0],dataset.shape[1],dataset.shape[2],3)
     temp = np.clip(temp, a_min=0, a_max=1)

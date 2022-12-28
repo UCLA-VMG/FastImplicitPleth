@@ -15,6 +15,7 @@ CKPTS/
 *.mp4
 *.npy
 *.pkl
+*.pth
 *.pickle
 
 # C extensions
