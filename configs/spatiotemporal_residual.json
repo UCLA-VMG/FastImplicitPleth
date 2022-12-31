@@ -1,6 +1,9 @@
 {
 	"spatiotemporal_device": "cuda:0",
 	"deltaspatial_device": "cuda:0",
+	"pleth_spatial_device": "cuda:0",
+	"pleth_temporal_device": "cuda:0",
+	"io_device": "cuda:0",
 	"data":{
 		"batch_size":8192,
 		"trace_batch_size":8192,
@@ -10,53 +13,67 @@
 		"norm_value": 255
 	},
 	"train": {
-		"epochs": 100
+		"epochs": 100,
+		"pre_train_epochs": 100
 	},
 	"opt": {
 		"otype": "Adam",
-		"lr": 1e-2,
+		"pre_train_lr": 1e-1,
+		"lr": 1e-3,
 		"beta1": 0.9,
 		"beta2": 0.99,
 		"eps": 1e-15,
 		"l2_reg": 1e-6
 	},
-	"spatiotemporal_encoding": {
-		"otype": "HashGrid",
-		"input_dims": 3,
-		"n_levels": 8,
-		"n_features_per_level": 2,
-		"log2_hashmap_size": 24,
-		"base_resolution": 16,
-		"per_level_scale": 1.5
+	"motion_model": {
+		"config": "configs/delta_motion.json",
+		"load_path": "v_84_2_motion/motion_model.pth"
 	},
-	"spatiotemporal_network": {
-		"otype": "FullyFusedMLP",
-		"activation": "ReLU",
-		"output_activation": "tanh",
-		"n_neurons": 64,
-		"n_hidden_layers": 2,
-		"output_dims": 2
-	},
-	"deltaspatial_encoding": {
+	"pleth_temporal_encoding": {
 		"otype": "HashGrid",
 		"input_dims": 2,
-		"n_levels": 8,
+		"n_levels": 16,
 		"n_features_per_level": 2,
 		"log2_hashmap_size": 24,
 		"base_resolution": 16,
 		"per_level_scale": 1.5
 	},
-	"deltaspatial_network": {
-		"otype": "FullyFusedMLP",
-		"activation": "ReLU",
+	"pleth_temporal_network": {
+		"otype": "CutlassMLP",
+		"activation": "Sine",
 		"output_activation": "none",
 		"n_neurons": 64,
 		"n_hidden_layers": 2,
 		"output_dims": 3
 	},
+	"pleth_spatial_encoding": {
+		"otype": "HashGrid",
+		"input_dims": 2,
+		"n_levels": 16,
+		"n_features_per_level": 2,
+		"log2_hashmap_size": 24,
+		"base_resolution": 16,
+		"per_level_scale": 1.5
+	},
+	"pleth_spatial_network": {
+		"otype": "CutlassMLP",
+		"activation": "Sine",
+		"output_activation": "sigmoid",
+		"n_neurons": 64,
+		"n_hidden_layers": 2,
+		"output_dims": 3
+	},
+	"pre_train_checkpoints": {
+		"save": true,
+		"dir": "spatiotemporal",
+		"epoch_frequency": 1000,
+		"file_tag": "pre_train_epoch_",
+		"latest": "pre_train_latest.pth",
+		"ext": ".pth"
+	},
 	"checkpoints": {
 		"save": false,
-		"dir": "delta_motion",
+		"dir": "spatiotemporal",
 		"epoch_frequency": 1,
 		"file_tag": "epoch_",
 		"latest": "latest.pth",
@@ -64,7 +81,7 @@
 	},
 	"trace": {
 		"plot": false,
-		"folder": "delta_motion",
+		"folder": "spatiotemporal",
 		"file_tag": "epoch_",
 		"trace_epoch": 1,
 		"ext": ".avi"
