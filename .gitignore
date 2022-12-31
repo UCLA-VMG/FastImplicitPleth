@@ -17,6 +17,7 @@ CKPTS/
 *.pkl
 *.pth
 *.pickle
+*.txt
 # Used to store temporary fucntions and configs
 ____temp*
 

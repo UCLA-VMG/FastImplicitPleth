@@ -50,7 +50,7 @@ def trace_video(model, dataset, dataloader, device, plot=True,
         temp = np.transpose(temp*255, (2,0,1,3)).astype(np.uint8)
         iio2.mimwrite(save_path, temp, fps=30)
         if verbose: print(f'Video Saved to {save_path}')
-    del temp
+    return temp
     
 def trace_video_tqdm(model, dataset, dataloader, device, plot=True, 
                      save_dir=None, save_file="epoch_", save_ext=".avi", verbose=True):
@@ -90,7 +90,7 @@ def trace_video_tqdm(model, dataset, dataloader, device, plot=True,
         temp = np.transpose(temp*255, (2,0,1,3)).astype(np.uint8)
         iio2.mimwrite(save_path, temp, fps=30)
         if verbose: print(f'Video Saved to {save_path}')
-    del temp
+    return temp
 
 def positional_encoding(inp, L_max = 10, L_min = 0):
     noDims = inp.shape[-1]
