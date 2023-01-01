@@ -55,7 +55,7 @@
 		"output_dims": 3
 	},
 	"checkpoints": {
-		"save": false,
+		"save": true,
 		"dir": "delta_motion",
 		"epoch_frequency": 1,
 		"file_tag": "epoch_",
