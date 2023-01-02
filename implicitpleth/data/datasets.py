@@ -23,7 +23,7 @@ class VideoGridDataset(object):
 				self.vid.append(iio2.imread(os.path.join(self.video_path, self.img_str+str(frame_num)+self.ext)))
 			self.vid = np.stack(self.vid, axis=2) # R C T Ch
 		else:
-			raise NotImplementedError
+			raise FileNotFoundError(f'No such file: {self.video_path}')
 		self.shape = self.vid.shape
 		if self.vid.ndim == 3:
 			self.verbose: print('Grayscale. Converting to RGB')

@@ -58,7 +58,7 @@ class  MotionNet(torch.nn.Module):
         delta = self.spatiotemporal_to_delta(coords)
         interim_out = coords[...,0:2] + (delta/2) # tanh is -1 to 1. But we need -0.5 to 0.5
         out = self.deltaspatial_to_rgb(interim_out.to(self.device_deltaspatial_to_rgb_device))
-        return out.to(self.device_spatiotemporal_to_delta), interim_out
+        return out.to(self.device_spatiotemporal_to_delta), {"interim_out": interim_out, "delta": delta}
     
     def set_device(self,device_spatiotemporal_to_delta, device_deltaspatial_to_rgb):
         self.device_spatiotemporal_to_delta = device_spatiotemporal_to_delta
