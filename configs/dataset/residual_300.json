@@ -6,13 +6,13 @@
 	"data":{
 		"batch_size":8192,
 		"trace_batch_size":8192,
-		"start_frame":80,
+		"start_frame":300,
 		"num_frames":300,
 		"shuffle":true,
 		"norm_value": 255
 	},
 	"train": {
-		"epochs": 100
+		"epochs": 5
 	},
 	"opt": {
 		"otype": "Adam",
@@ -23,8 +23,8 @@
 		"l2_reg": 1e-6
 	},
 	"motion_model": {
-		"config": "configs/delta_motion.json",
-		"load_path": "motion/motion_model.pth"
+		"config": "configs/dataset/dhd_motion_300.json",
+		"load_path": "dataset_expt/motion_300"
 	},
 	"pleth_encoding": {
 		"otype": "HashGrid",
@@ -44,16 +44,16 @@
 		"output_dims": 3
 	},
 	"checkpoints": {
-		"save": false,
-		"dir": "residual",
-		"epoch_frequency": 1,
+		"save": true,
+		"dir": "dataset_res/residual_300",
+		"epoch_frequency": 5,
 		"file_tag": "epoch_",
 		"latest": "latest.pth",
 		"ext": ".pth"
 	},
 	"trace": {
 		"plot": false,
-		"folder": "residual",
+		"folder": "dataset_res/residual_300",
 		"file_tag": "epoch_",
 		"trace_epoch": 1,
 		"ext": ".avi"
