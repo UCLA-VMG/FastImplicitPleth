@@ -56,7 +56,7 @@
 	},
 	"checkpoints": {
 		"save": true,
-		"dir": "dataset_expt/motion_600",
+		"dir": "dataset_motion/motion_600",
 		"epoch_frequency": 10,
 		"file_tag": "epoch_",
 		"latest": "latest.pth",
@@ -64,7 +64,7 @@
 	},
 	"trace": {
 		"plot": false,
-		"folder": "dataset_expt/motion_600",
+		"folder": "dataset_motion/motion_600",
 		"file_tag": "epoch_",
 		"trace_epoch": 1,
 		"ext": ".avi"

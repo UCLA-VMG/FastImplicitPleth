@@ -24,7 +24,7 @@
 	},
 	"motion_model": {
 		"config": "configs/dataset/dhd_motion_300.json",
-		"load_path": "dataset_expt/motion_300"
+		"load_path": "dataset_motion/motion_300"
 	},
 	"pleth_encoding": {
 		"otype": "HashGrid",
