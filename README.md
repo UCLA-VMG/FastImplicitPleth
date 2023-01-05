@@ -10,4 +10,5 @@ This code has been tested on Ubuntu 20.04
 
 # Code References
 - [Siren model](https://colab.research.google.com/github/vsitzmann/siren/blob/master/explore_siren.ipynb#scrollTo=gupA19Fc2kvw)
+- [Deep Physiological Sensing toolbox](https://github.com/ubicomplab/rPPG-Toolbox)
 
