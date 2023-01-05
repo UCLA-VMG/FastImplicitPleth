@@ -26,9 +26,8 @@ def parse_arguments():
 def main(args):
     dset = VideoGridDataset(args.video_path, verbose=args.verbose, num_frames=args.data["num_frames"], 
                         start_frame=args.data["start_frame"], pixel_norm=args.data["norm_value"])
-    dloader = torch.utils.data.DataLoader(range(len(dset)), 
-                                          batch_size=args.data["batch_size"],
-                                          shuffle=True, num_workers=1)
+    dloader = torch.utils.data.DataLoader(range(len(dset)), batch_size=args.data["batch_size"],
+                                          shuffle=args.data["shuffle"], num_workers=1)
     # Pre-trained motion model
     print(args.motion_model)
     with open(args.motion_model["config"]) as mmf:

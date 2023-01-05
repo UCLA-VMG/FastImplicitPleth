@@ -28,7 +28,7 @@ def main(args):
     dset = VideoGridDataset(args.video_path, verbose=args.verbose, num_frames=args.data["num_frames"], 
                         start_frame=args.data["start_frame"], pixel_norm=args.data["norm_value"])
     dloader = torch.utils.data.DataLoader(range(len(dset)), batch_size=args.data["batch_size"], 
-                                          shuffle=True, num_workers=1)
+                                          shuffle=args.data["shuffle"], num_workers=1)
     # Instantiate the model
     # NOTE: The model class will move the data between multiple devices (if applicable).
     # This format has been followed since certain hyperparameters would lead to very large networks.
