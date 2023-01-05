@@ -1,5 +1,8 @@
 {
-	"device": "cuda",
+	"spatiotemporal_device": "cuda:0",
+	"deltaspatial_device": "cuda:0",
+	"pleth_device": "cuda:0",
+	"io_device": "cuda:0",
 	"data":{
 		"batch_size":8192,
 		"trace_batch_size":8192,
@@ -9,53 +12,50 @@
 		"norm_value": 255
 	},
 	"train": {
-		"epochs": 200
+		"epochs": 100
 	},
 	"opt": {
 		"otype": "Adam",
-		"lr": 1e-2,
+		"lr": 1e-3,
 		"beta1": 0.9,
 		"beta2": 0.99,
 		"eps": 1e-15,
 		"l2_reg": 1e-6
 	},
-	"encoding": {
+	"motion_model": {
+		"config": "configs/delta_motion.json",
+		"load_path": "motion/motion_model.pth"
+	},
+	"pleth_encoding": {
 		"otype": "HashGrid",
-		"input_dims": 2,
-		"n_levels": 32,
+		"input_dims": 3,
+		"n_levels": 8,
 		"n_features_per_level": 2,
-		"log2_hashmap_size": 22,
+		"log2_hashmap_size": 24,
 		"base_resolution": 16,
 		"per_level_scale": 1.5
 	},
-	"time_network": {
+	"pleth_network": {
 		"otype": "CutlassMLP",
 		"activation": "Sine",
-		"output_activation": "None",
+		"output_activation": "none",
 		"n_neurons": 64,
 		"n_hidden_layers": 2,
-		"output_dims": 20
-	},
-	"spatial_network": {
-		"input_dims": 2,
-		"hidden_dims": 64,
-		"n_hidden": 3,
-		"outermost_linear": true,
-		"output_dims": 3,
-		"first_omega_0": 1,
-		"hidden_omega_0": 1.0,
-		"L_min": 0,
-		"L_max": 10
+		"output_dims": 3
 	},
 	"checkpoints": {
-		"dir": null,
-		"file": "epoch_",
+		"save": false,
+		"dir": "residual",
+		"epoch_frequency": 1,
+		"file_tag": "epoch_",
+		"latest": "latest.pth",
 		"ext": ".pth"
 	},
 	"trace": {
 		"plot": false,
-		"folder": "motion_300_3hidden_sine",
+		"folder": "residual",
 		"file_tag": "epoch_",
+		"trace_epoch": 1,
 		"ext": ".avi"
 	}
 }

@@ -17,7 +17,10 @@ def trace_video(model, dataset, dataloader, device, plot=True,
         temp = []
         for item in dataloader:
             inp = item['loc'].half().to(device)
-            temp.append(model(inp)[0].squeeze().cpu().detach().float().numpy())
+            output = model(inp) 
+            if type(output) == tuple:
+                output = output[0] 
+            temp.append(output.squeeze().cpu().detach().float().numpy())
     if verbose: print('Arranging Tensor')
     temp = np.concatenate(temp,axis=0).reshape(dataset.shape[0],dataset.shape[1],dataset.shape[2],3)
     temp = np.clip(temp, a_min=0, a_max=1)
@@ -47,7 +50,7 @@ def trace_video(model, dataset, dataloader, device, plot=True,
         temp = np.transpose(temp*255, (2,0,1,3)).astype(np.uint8)
         iio2.mimwrite(save_path, temp, fps=30)
         if verbose: print(f'Video Saved to {save_path}')
-    del temp
+    return temp
     
 def trace_video_tqdm(model, dataset, dataloader, device, plot=True, 
                      save_dir=None, save_file="epoch_", save_ext=".avi", verbose=True):
@@ -87,7 +90,7 @@ def trace_video_tqdm(model, dataset, dataloader, device, plot=True,
         temp = np.transpose(temp*255, (2,0,1,3)).astype(np.uint8)
         iio2.mimwrite(save_path, temp, fps=30)
         if verbose: print(f'Video Saved to {save_path}')
-    del temp
+    return temp
 
 def positional_encoding(inp, L_max = 10, L_min = 0):
     noDims = inp.shape[-1]

@@ -15,7 +15,11 @@ CKPTS/
 *.mp4
 *.npy
 *.pkl
+*.pth
 *.pickle
+*.txt
+# Used to store temporary fucntions and configs
+____temp*
 
 # C extensions
 *.so
