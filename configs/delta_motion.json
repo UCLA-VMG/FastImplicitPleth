@@ -10,7 +10,7 @@
 		"norm_value": 255
 	},
 	"train": {
-		"epochs": 100
+		"epochs": 10
 	},
 	"opt": {
 		"otype": "Adam",

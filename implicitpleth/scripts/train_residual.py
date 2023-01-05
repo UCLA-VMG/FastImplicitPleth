@@ -28,7 +28,7 @@ def main(args):
                         start_frame=args.data["start_frame"], pixel_norm=args.data["norm_value"])
     dloader = torch.utils.data.DataLoader(range(len(dset)), 
                                           batch_size=args.data["batch_size"],
-                                          shuffle=True)
+                                          shuffle=True, num_workers=1)
     # Pre-trained motion model
     print(args.motion_model)
     with open(args.motion_model["config"]) as mmf:
@@ -140,12 +140,12 @@ def main(args):
                 torch.save({'model_state_dict': pleth_model.state_dict()}, 
                            os.path.join(args.checkpoints["dir"], checkpoint_file))
                 if args.verbose: print(f'Saved model for epoch {epoch}.')
-            torch.save({
-                'epoch': epoch,
-                'model_state_dict': pleth_model.state_dict(),
-                # 'optimizer_enc_state_dict': opt_enc.state_dict(),
-                # 'optimizer_net_state_dict': opt_net.state_dict(),
-                }, latest_ckpt_path)
+            # torch.save({
+            #     'epoch': epoch,
+            #     'model_state_dict': pleth_model.state_dict(),
+            #     # 'optimizer_enc_state_dict': opt_enc.state_dict(),
+            #     # 'optimizer_net_state_dict': opt_net.state_dict(),
+            #     }, latest_ckpt_path)
             if args.verbose: print('Saved latest checkpoint.')
         # Epoch demarcation
         print('-'*100, flush=True)
