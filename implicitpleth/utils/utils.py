@@ -2,6 +2,7 @@ import tqdm
 import numpy as np
 import imageio.v2 as iio2
 import matplotlib.pyplot as plt
+import scipy.signal
 import torch
 
 class Dict2Class(object):
@@ -119,3 +120,65 @@ def positional_encoding_phase(inp, phase, L_max = 10, L_min = 0):
             else:
                 p_enc_grid = torch.cat((p_enc_grid,torch.sin(np.pi*val*inp[...,dd:dd+1]+phase[...,base_ix+dd:base_ix+dd+1]),torch.cos(np.pi*val*inp[...,dd:dd+1]+phase[...,base_ix+dd:base_ix+dd+1])),dim=-1)
     return p_enc_grid
+
+def custom_detrend(*args,**kwargs):
+    raise NotImplementedError
+
+
+def prpsd2(BVP, FS, LL_PR, UL_PR, BUTTER_ORDER=6, DETREND=False, PlotTF=False, FResBPM = 0.1,RECT=True):
+    '''
+    Estimates pulse rate from the power spectral density a BVP signal
+    
+    Inputs
+        BVP              : A BVP timeseries. (1d numpy array)
+        fs               : The sample rate of the BVP time series (Hz/fps). (int)
+        lower_cutoff_bpm : The lower limit for pulse rate (bpm). (int)
+        upper_cutoff_bpm : The upper limit for pulse rate (bpm). (int)
+        butter_order     : Order of the Butterworth Filter. (int)
+        detrend          : Detrend the input signal. (bool)
+        FResBPM          : Resolution (bpm) of bins in power spectrum used to determine pulse rate and SNR. (float)
+    
+    Outputs
+        pulse_rate       : The estimated pulse rate in BPM. (float)
+    
+    Daniel McDuff, Ethan Blackford, January 2019
+    Copyright (c)
+    Licensed under the MIT License and the RAIL AI License.
+    '''
+
+    N = (60*FS)/FResBPM
+
+    # Detrending + nth order butterworth + periodogram
+    if DETREND:
+        BVP = custom_detrend(np.cumsum(BVP), 100)
+    if BUTTER_ORDER:
+        [b, a] = scipy.signal.butter(BUTTER_ORDER, [LL_PR/60, UL_PR/60], btype='bandpass', fs = FS)
+    
+    BVP = scipy.signal.filtfilt(b, a, np.double(BVP))
+    
+    # Calculate the PSD and the mask for the desired range
+    if RECT:
+        F, Pxx = scipy.signal.periodogram(x=BVP,  nfft=N, fs=FS, detrend=False);  
+    else:
+        F, Pxx = scipy.signal.periodogram(x=BVP, window=np.hanning(len(BVP)), nfft=N, fs=FS)
+    FMask = (F >= (LL_PR/60)) & (F <= (UL_PR/60))
+    
+    # Calculate predicted pulse rate:
+    FRange = F * FMask
+    PRange = Pxx * FMask
+    MaxInd = np.argmax(PRange)
+    pulse_rate_freq = FRange[MaxInd]
+    pulse_rate = pulse_rate_freq*60
+
+    # Optionally Plot the PSD and peak frequency
+    if PlotTF:
+        # Plot PSD (in dB) and peak frequency
+        plt.figure()
+        plt.plot(F, 10 * np.log10(Pxx))
+        plt.plot(pulse_rate_freq, 10 * np.log10(PRange[MaxInd]),'ro')
+        plt.xlabel('Frequency (Hz)')
+        plt.ylabel('Power (dB)')
+        plt.xlim([0, 4.5])
+        plt.title('Power Spectrum and Peak Frequency')
+            
+    return pulse_rate

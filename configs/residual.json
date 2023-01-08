@@ -6,7 +6,7 @@
 	"data":{
 		"batch_size":8192,
 		"trace_batch_size":8192,
-		"start_frame":80,
+		"start_frame":0,
 		"num_frames":300,
 		"shuffle":true,
 		"norm_value": 255
