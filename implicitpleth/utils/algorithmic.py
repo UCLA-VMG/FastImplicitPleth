@@ -83,6 +83,12 @@ def detrend_and_filter(BVP, fs=30):
     BVP = signal.filtfilt(b, a, BVP.astype(np.double))
     return BVP
 
+def detrend_signal(BVP, fs=30):
+    BVP = np.reshape(BVP,(1,-1))
+    BVP = utils_detrend(np.mat(BVP).H, 100)
+    BVP = np.asarray(np.transpose(BVP))[0]
+    return BVP
+
 def utils_detrend(input_signal, lambda_value):
     signal_length = input_signal.shape[0]
     # observation matrix
