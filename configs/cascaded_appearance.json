@@ -56,15 +56,15 @@
 	},
 	"checkpoints": {
 		"save": true,
-		"dir": "dataset_motion/motion_0",
-		"epoch_frequency": 10,
+		"dir": "cascaded_appearance",
+		"epoch_frequency": 1,
 		"file_tag": "epoch_",
 		"latest": "latest.pth",
 		"ext": ".pth"
 	},
 	"trace": {
 		"plot": false,
-		"folder": "dataset_motion/motion_0",
+		"folder": "cascaded_appearance",
 		"file_tag": "epoch_",
 		"trace_epoch": 1,
 		"ext": ".avi"

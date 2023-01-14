@@ -5,7 +5,7 @@ import tinycudann as tcnn
 from .base import SineLayer
 from ..utils.utils import positional_encoding, positional_encoding_phase
 
-# class  OldMotionNet(torch.nn.Module):
+# class  OldAppearanceNet(torch.nn.Module):
 #     def __init__(self, spatiotemporal_to_delta_encoding, spatiotemporal_to_delta_network, 
 #                  deltaspatial_to_rgb_encoding, deltaspatial_to_rgb_network):
 #         super().__init__()
@@ -35,7 +35,7 @@ from ..utils.utils import positional_encoding, positional_encoding_phase
 #         self.deltaspatial_to_rgb.to(self.device_deltaspatial_to_rgb_device)
 
 
-class  MotionNet(torch.nn.Module):
+class  AppearanceNet(torch.nn.Module):
     def __init__(self, spatiotemporal_to_delta_encoding, spatiotemporal_to_delta_network, 
                  deltaspatial_to_rgb_encoding, deltaspatial_to_rgb_network):
         super().__init__()

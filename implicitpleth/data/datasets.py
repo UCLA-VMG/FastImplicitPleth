@@ -31,11 +31,22 @@ class VideoGridDataset(object):
 			self.vid = np.concatenate([self.vid,self.vid,self.vid], axis=-1)
 
 		if self.verbose: print(f'Shape of the Video: {self.shape}')
-		X, Y, T  = np.meshgrid(np.arange(self.shape[1]), np.arange(self.shape[0]), np.arange(self.shape[2]))
+		half_dx =  0.5 / self.shape[1]
+		half_dy =  0.5 / self.shape[0]
+		half_dt =  0.5 / self.shape[2]
+		xs = np.linspace(half_dx, 1-half_dx, self.shape[1])
+		ys = np.linspace(half_dy, 1-half_dy, self.shape[0])
+		ts = np.linspace(half_dt, 1-half_dt, self.shape[2])
+		X, Y, T = np.meshgrid(xs, ys, ts)
 		if self.verbose: print(f'Grid Shape -> X: {X.shape}, Y: {Y.shape}, T: {T.shape}')
-		x = (torch.tensor(X.ravel()) / self.shape[1]) - 0.5
-		y = (torch.tensor(Y.ravel()) / self.shape[0]) - 0.5
-		t = (torch.tensor(T.ravel()) / self.shape[2]) - 0.5
+		x = torch.tensor(X.ravel())
+		y = torch.tensor(Y.ravel())
+		t = torch.tensor(T.ravel())
+		# X, Y, T  = np.meshgrid(np.arange(self.shape[1]), np.arange(self.shape[0]), np.arange(self.shape[2]))
+		# if self.verbose: print(f'Grid Shape -> X: {X.shape}, Y: {Y.shape}, T: {T.shape}')
+		# x = (torch.tensor(X.ravel()) / self.shape[1]) - 0.5
+		# y = (torch.tensor(Y.ravel()) / self.shape[0]) - 0.5
+		# t = (torch.tensor(T.ravel()) / self.shape[2]) - 0.5
 
 		self.vid = torch.tensor(self.vid.reshape(-1,3)) / self.pixel_norm
 		self.loc = torch.stack([x,y,t], dim=-1)
@@ -51,7 +62,8 @@ class VideoGridDataset(object):
 		return {'pixel': self.vid[idx], 'loc': self.loc[idx]}
 
 	def generate_spatial_tensor_grid(self):
-		spatial_X, spatial_Y = np.meshgrid(np.arange(self.shape[1]), np.arange(self.shape[0]))
-		spatial_x = (torch.tensor(spatial_X.ravel()) / self.shape[1]) - 0.5
-		spatial_y = (torch.tensor(spatial_Y.ravel()) / self.shape[0]) - 0.5
-		return torch.stack((spatial_x,spatial_y), dim = -1)
+		raise NotImplementedError
+		# spatial_X, spatial_Y = np.meshgrid(np.arange(self.shape[1]), np.arange(self.shape[0]))
+		# spatial_x = (torch.tensor(spatial_X.ravel()) / self.shape[1]) - 0.5
+		# spatial_y = (torch.tensor(spatial_Y.ravel()) / self.shape[0]) - 0.5
+		# return torch.stack((spatial_x,spatial_y), dim = -1)

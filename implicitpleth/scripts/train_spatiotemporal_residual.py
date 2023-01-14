@@ -8,7 +8,7 @@ import torch.utils.data
 import tinycudann as tcnn
 import argparse
 
-from ..models.combinations import MotionNet
+from ..models.combinations import AppearanceNet
 from ..data.datasets import VideoGridDataset
 from ..utils.utils import trace_video, Dict2Class
 
@@ -82,26 +82,26 @@ def main(args):
                             num_frames=args.data["num_frames"], start_frame=args.data["start_frame"])
     dloader = torch.utils.data.DataLoader(dset, batch_size=args.data["batch_size"], shuffle=True)
     trace_loader = torch.utils.data.DataLoader(dset, batch_size=args.data["trace_batch_size"], shuffle=False)
-    # Model 1: Capture Motion 
-    with open(args.motion_model["config"]) as mmf:
-        args.motion_model["config"] = json.load(mmf)
-    motion_model = MotionNet(args.motion_model["config"]["spatiotemporal_encoding"], 
-                             args.motion_model["config"]["spatiotemporal_network"],
-                             args.motion_model["config"]["deltaspatial_encoding"], 
-                             args.motion_model["config"]["deltaspatial_network"])
+    # Model 1: Capture Appearance 
+    with open(args.appearance_model["config"]) as mmf:
+        args.appearance_model["config"] = json.load(mmf)
+    appearance_model = AppearanceNet(args.appearance_model["config"]["spatiotemporal_encoding"], 
+                             args.appearance_model["config"]["spatiotemporal_network"],
+                             args.appearance_model["config"]["deltaspatial_encoding"], 
+                             args.appearance_model["config"]["deltaspatial_network"])
     # Load pre-trained weights
     if args.append_load_path is not None:
-        args.motion_model["load_path"] = args.motion_model["load_path"] + args.append_load_path
-    if args.verbose: print(f'Loading motion model from {args.motion_model["load_path"]}')
-    motion_model.load_state_dict(torch.load(args.motion_model["load_path"])["model_state_dict"])
+        args.appearance_model["load_path"] = args.appearance_model["load_path"] + args.append_load_path
+    if args.verbose: print(f'Loading appearance model from {args.appearance_model["load_path"]}')
+    appearance_model.load_state_dict(torch.load(args.appearance_model["load_path"])["model_state_dict"])
     # Freeze the model
-    motion_model.eval()
-    for params in motion_model.parameters():
+    appearance_model.eval()
+    for params in appearance_model.parameters():
         params.requires_grad = False
     # Set the model device
-    motion_spatiotemporal_device = torch.device(args.spatiotemporal_device)
-    motion_deltaspatial_device = torch.device(args.deltaspatial_device)
-    motion_model.set_device(motion_spatiotemporal_device, motion_deltaspatial_device)
+    appearance_spatiotemporal_device = torch.device(args.spatiotemporal_device)
+    appearance_deltaspatial_device = torch.device(args.deltaspatial_device)
+    appearance_model.set_device(appearance_spatiotemporal_device, appearance_deltaspatial_device)
     # Model 2: Capture PPG
     pleth_model = PlethSpatioTemporalModel(args.pleth_spatial_encoding, args.pleth_spatial_network, 
                                            args.pleth_temporal_encoding, args.pleth_temporal_network)
@@ -109,7 +109,7 @@ def main(args):
     pleth_model.set_device(args.pleth_spatial_device, args.pleth_temporal_device)
     # Ensemble Adder
     # Trace takes in only a single model. Hence required.
-    ensemble = AdditionEnsemble(motion_model, pleth_model)
+    ensemble = AdditionEnsemble(appearance_model, pleth_model)
     ensemble.set_device(args.io_device) # NOTE: This only stores the device does not move the models.
     # Print the models
     if args.verbose: print('-'*100, flush=True)
@@ -174,9 +174,9 @@ def main(args):
             pixel = item["pixel"].half()/args.data["norm_value"]
             # Ensemble is not used since we want to use torch.np_grad()
             # with torch.no_grad():
-            motion_out, _ = motion_model(loc)
+            appearance_out, _ = appearance_model(loc)
             ppg_res_out, _ = pleth_model(loc,ptc_flag)
-            output = motion_out.to(args.io_device) + ppg_res_out.to(args.io_device)
+            output = appearance_out.to(args.io_device) + ppg_res_out.to(args.io_device)
             # Since the model takes care of moving the data to different devices, move GT correspondingly.
             pixel = pixel.to(output.dtype)
             pixel = pixel.to(output.device)
@@ -208,9 +208,9 @@ def main(args):
                       save_dir=args.trace["folder"], \
                       save_file=f'saptial_{args.trace["file_tag"]}{str(epoch).zfill(ndigits_epoch)}', \
                       verbose=args.verbose)
-            # trace_video(motion_model, dset, trace_loader, args.io_device, \
+            # trace_video(appearance_model, dset, trace_loader, args.io_device, \
             #             save_dir=args.trace["folder"], \
-            #             save_file=f'motion_{args.trace["file_tag"]}{str(epoch).zfill(ndigits_epoch)}', \
+            #             save_file=f'appearance_{args.trace["file_tag"]}{str(epoch).zfill(ndigits_epoch)}', \
             #             save_ext=args.trace["ext"],\
             #             plot=args.trace["plot"], verbose=args.verbose)
         # Save the checkpoints

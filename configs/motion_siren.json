@@ -54,7 +54,7 @@
 	},
 	"trace": {
 		"plot": false,
-		"folder": "motion_300_3hidden_sine",
+		"folder": "appearance_300_3hidden_sine",
 		"file_tag": "epoch_",
 		"ext": ".avi"
 	}

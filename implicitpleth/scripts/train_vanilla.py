@@ -9,7 +9,6 @@ import torch.utils.data
 import tinycudann as tcnn
 import argparse
 
-from ..models.combinations import AppearanceNet
 from ..data.datasets import VideoGridDataset
 from ..utils.utils import Dict2Class
 
@@ -28,34 +27,20 @@ def main(args):
                         start_frame=args.data["start_frame"], pixel_norm=args.data["norm_value"])
     dloader = torch.utils.data.DataLoader(range(len(dset)), batch_size=args.data["batch_size"],
                                           shuffle=args.data["shuffle"], num_workers=1)
-    # Pre-trained appearance model
-    print(args.appearance_model)
-    with open(args.appearance_model["config"]) as mmf:
-        config = json.load(mmf)
-    appearance_model = AppearanceNet(config["spatiotemporal_encoding"], 
-                            config["spatiotemporal_network"],
-                            config["deltaspatial_encoding"], 
-                            config["deltaspatial_network"])
-    if args.append_load_path is not None:
-        args.appearance_model["load_path"] = args.appearance_model["load_path"] + args.append_load_path
-    if args.verbose: print(f'Loading appearance model from {args.appearance_model["load_path"]}')
-    appearance_model.load_state_dict(torch.load(args.appearance_model["load_path"])["model_state_dict"])
-    appearance_model.eval()
-    appearance_model.set_device(args.spatiotemporal_device, args.deltaspatial_device)
-    # Pleth Residual Model
-    pleth_enc = tcnn.Encoding(args.pleth_encoding["input_dims"], args.pleth_encoding)
-    pleth_net = tcnn.Network(pleth_enc.n_output_dims, args.pleth_network["output_dims"], args.pleth_network)
-    pleth_model = torch.nn.Sequential(pleth_enc, pleth_net)
-    pleth_model.to(args.pleth_device)
+    # Model
+    enc = tcnn.Encoding(args.encoding["input_dims"], args.encoding)
+    net = tcnn.Network(enc.n_output_dims, args.network["output_dims"], args.network)
+    model = torch.nn.Sequential(enc, net)
+    model.to(args.device)
     # Print the models
     if args.verbose: print('-'*100, flush=True)
-    if args.verbose: print(pleth_model)
+    if args.verbose: print(model)
     if args.verbose: print('-'*100, flush=True)
 
     # Optimizer.
-    opt_enc = torch.optim.Adam(pleth_enc.parameters(), lr=1e-3,
+    opt_enc = torch.optim.Adam(enc.parameters(), lr=args.opt["lr"],
                        betas=(args.opt["beta1"], args.opt["beta2"]), eps=args.opt["eps"])
-    opt_net = torch.optim.Adam(pleth_net.parameters(), lr=1e-3, weight_decay=args.opt["l2_reg"],
+    opt_net = torch.optim.Adam(net.parameters(), lr=args.opt["lr"], weight_decay=args.opt["l2_reg"],
                         betas=(args.opt["beta1"], args.opt["beta2"]), eps=args.opt["eps"])
     # Folders for the traced video data and checkpoints.
     if args.append_save_path is not None:
@@ -83,14 +68,12 @@ def main(args):
     # Epoch iteration.
     for epoch in range(start_epoch,epochs+1):
         train_loss = 0
-        pleth_model.train()
-        appearance_model.train()
+        model.train()
+        # for count, item in tqdm(enumerate(dloader), total=len(dloader)):
         for count, item in enumerate(dloader):
-            loc = dset.loc[item].half().to(args.pleth_device)
-            pixel = dset.vid[item].half().to(args.pleth_device)
-            appearance_output, _ = appearance_model(loc)
-            pleth_output = pleth_model(loc)
-            output = appearance_output + pleth_output
+            loc = dset.loc[item].half().to(args.device)
+            pixel = dset.vid[item].half().to(args.device)
+            output = model(loc)
             # Since the model takes care of moving the data to different devices, move GT correspondingly.
             pixel = pixel.to(output.dtype).to(output.device)
             # Backpropagation.
@@ -107,41 +90,29 @@ def main(args):
         if args.trace["folder"] is not None:
             if epoch >= args.trace["trace_epoch"]:
                 with torch.no_grad():
-                    appearance_model.eval()
-                    pleth_model.eval()
-                    trace_loc = dset.loc.half().to(args.pleth_device)
-                    appearance_output, _ = appearance_model(trace_loc)
-                    pleth_output = pleth_model(trace_loc)
+                    model.eval()
+                    trace_loc = dset.loc.half().to(args.device)
+                    trace_output = model(trace_loc)
                     
                     # TODO: Reduce the number of lines
-                    trace = appearance_output + pleth_output
-                    trace = trace.detach().cpu().float().reshape(dset.shape).permute(2,0,1,3).numpy()
+                    trace = trace_output.detach().cpu().float().reshape(dset.shape).permute(2,0,1,3).numpy()
+                    # trace = (trace - np.amin(trace, axis=(0,1,2), keepdims=True)) / (np.amax(trace, axis=(0,1,2), keepdims=True) - np.amin(trace, axis=(0,1,2), keepdims=True))
                     trace = (np.clip(trace, 0, 1)*255).astype(np.uint8)
                     save_path = os.path.join(args.trace["folder"], f'{args.trace["file_tag"]}{str(epoch).zfill(ndigits_epoch)}.avi')
                     iio2.mimwrite(save_path, trace, fps=30)
                     
-                    trace = pleth_output.detach().cpu().float().reshape(dset.shape).permute(2,0,1,3).numpy()
-                    trace = (trace - np.amin(trace, axis=(0,1,2), keepdims=True)) / (np.amax(trace, axis=(0,1,2), keepdims=True) - np.amin(trace, axis=(0,1,2), keepdims=True))
-                    trace = (np.clip(trace, 0, 1)*255).astype(np.uint8)
-                    save_path = os.path.join(args.trace["folder"], f'rescaled_residual_{args.trace["file_tag"]}{str(epoch).zfill(ndigits_epoch)}.avi')
-                    iio2.mimwrite(save_path, trace, fps=30)
-                    
-                    trace = appearance_output.detach().cpu().float().reshape(dset.shape).permute(2,0,1,3).numpy()
-                    trace = (np.clip(trace, 0, 1)*255).astype(np.uint8)
-                    save_path = os.path.join(args.trace["folder"], f'appearance_{args.trace["file_tag"]}{str(epoch).zfill(ndigits_epoch)}.avi')
-                    iio2.mimwrite(save_path, trace, fps=30)
         # Save the checkpoints
         if args.checkpoints["save"]:
             if args.verbose: print('Saving checkpoint.')
             if epoch % args.checkpoints["epoch_frequency"] == 0:
                 checkpoint_file = f'{args.checkpoints["file_tag"]}{str(epoch).zfill(ndigits_epoch)}{args.checkpoints["ext"]}'
                 # Save as dict to maintain uniformity
-                torch.save({'model_state_dict': pleth_model.state_dict()}, 
+                torch.save({'model_state_dict': model.state_dict()}, 
                            os.path.join(args.checkpoints["dir"], checkpoint_file))
                 if args.verbose: print(f'Saved model for epoch {epoch}.')
             # torch.save({
             #     'epoch': epoch,
-            #     'model_state_dict': pleth_model.state_dict(),
+            #     'model_state_dict': model.state_dict(),
             #     # 'optimizer_enc_state_dict': opt_enc.state_dict(),
             #     # 'optimizer_net_state_dict': opt_net.state_dict(),
             #     }, latest_ckpt_path)
@@ -165,8 +136,6 @@ if __name__ == '__main__':
     if args.verbose: print(dict_args)
     if args.verbose: print('-'*100, flush=True)
     # Convert device string to torch.device().
-    args.spatiotemporal_device = torch.device(args.spatiotemporal_device)
-    args.deltaspatial_device = torch.device(args.deltaspatial_device)
-    args.pleth_device = torch.device(args.pleth_device)
+    args.device = torch.device(args.device)
     # Main routine.
     main(args)

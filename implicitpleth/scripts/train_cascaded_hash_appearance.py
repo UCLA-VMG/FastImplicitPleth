@@ -10,7 +10,7 @@ import torch.utils.data
 import tinycudann as tcnn
 import argparse
 
-from ..models.combinations import MotionNet
+from ..models.combinations import AppearanceNet
 from ..data.datasets import VideoGridDataset
 from ..utils.utils import Dict2Class
 
@@ -33,7 +33,7 @@ def main(args):
     # NOTE: The model class will move the data between multiple devices (if applicable).
     # This format has been followed since certain hyperparameters would lead to very large networks.
     # Hence we can split the model between 2 devices. Alternatively, the same device can be specified in the config.
-    model = MotionNet(args.spatiotemporal_encoding, args.spatiotemporal_network,
+    model = AppearanceNet(args.spatiotemporal_encoding, args.spatiotemporal_network,
                       args.deltaspatial_encoding, args.deltaspatial_network)
     # NOTE: By default the models are on the CPU. Call set_device() to manually specify the devices.
     model.set_device(args.spatiotemporal_device, args.deltaspatial_device)
