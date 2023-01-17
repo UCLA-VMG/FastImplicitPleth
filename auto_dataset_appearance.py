@@ -3,13 +3,12 @@ import pickle
 import argparse
 
 parser = argparse.ArgumentParser()
-# parser.add_argument('--root', required=True, type=str)
+parser.add_argument('--root', default='/home/pradyumnachari/Documents/ImplicitPPG/SIGGRAPH_Data/rgb_files', type=str)
 parser.add_argument('--pkl', required=True, type=str)
 parser.add_argument('--cuda-dev', required=True, type=str)
 args = parser.parse_args()
 
-# ROOT_PATH = args.root
-ROOT_PATH = '/home/pradyumnachari/Documents/ImplicitPPG/SIGGRAPH_Data/rgb_files'
+ROOT_PATH = args.root
 
 # '/home/pradyumnachari/Documents/ImplicitPPG/SIGGRAPH_Data/fl_l1.pkl'
 with open(args.pkl,'rb') as f:
@@ -35,3 +34,6 @@ for folder in list_of_folders:
     config = 'configs/dataset/ch_appearance_600.json'
     log = f'logs/{folder}_appearance_log_600.txt'
     os.system(f'CUDA_VISIBLE_DEVICES={args.cuda_dev} nohup python -m {filename} -vp {vp} -config {config} --append_save_path _{folder} --verbose > {log} ')
+
+    print(vp)
+    print("-"*50)
