@@ -23,7 +23,7 @@
 		"l2_reg": 1e-6
 	},
 	"appearance_model": {
-		"config": "configs/dataset/dhd_appearance_0.json",
+		"config": "configs/dataset/ch_appearance_0.json",
 		"load_path": "dataset_appearance/appearance_0"
 	},
 	"pleth_encoding": {
