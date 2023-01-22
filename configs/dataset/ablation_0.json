@@ -1,6 +1,5 @@
 {
-	"spatiotemporal_device": "cuda:0",
-	"deltaspatial_device": "cuda:0",
+	"device": "cuda:0",
 	"data":{
 		"batch_size":8192,
 		"trace_batch_size":8192,
@@ -14,13 +13,13 @@
 	},
 	"opt": {
 		"otype": "Adam",
-		"lr": 1e-2,
+		"lr": 1e-3,
 		"beta1": 0.9,
 		"beta2": 0.99,
 		"eps": 1e-15,
 		"l2_reg": 1e-6
 	},
-	"spatiotemporal_encoding": {
+	"encoding": {
 		"otype": "HashGrid",
 		"input_dims": 3,
 		"n_levels": 8,
@@ -29,26 +28,9 @@
 		"base_resolution": 16,
 		"per_level_scale": 1.5
 	},
-	"spatiotemporal_network": {
-		"otype": "FullyFusedMLP",
-		"activation": "ReLU",
-		"output_activation": "tanh",
-		"n_neurons": 64,
-		"n_hidden_layers": 2,
-		"output_dims": 2
-	},
-	"deltaspatial_encoding": {
-		"otype": "HashGrid",
-		"input_dims": 2,
-		"n_levels": 8,
-		"n_features_per_level": 2,
-		"log2_hashmap_size": 24,
-		"base_resolution": 16,
-		"per_level_scale": 1.5
-	},
-	"deltaspatial_network": {
-		"otype": "FullyFusedMLP",
-		"activation": "ReLU",
+	"network": {
+		"otype": "CutlassMLP",
+		"activation": "Sine",
 		"output_activation": "none",
 		"n_neurons": 64,
 		"n_hidden_layers": 2,
@@ -56,15 +38,15 @@
 	},
 	"checkpoints": {
 		"save": true,
-		"dir": "delta_motion",
-		"epoch_frequency": 1,
+		"dir": "dataset_ab/ablation_0",
+		"epoch_frequency": 10,
 		"file_tag": "epoch_",
 		"latest": "latest.pth",
 		"ext": ".pth"
 	},
 	"trace": {
 		"plot": false,
-		"folder": "delta_motion",
+		"folder": "dataset_ab/ablation_0",
 		"file_tag": "epoch_",
 		"trace_epoch": 1,
 		"ext": ".avi"

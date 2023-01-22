@@ -22,9 +22,9 @@
 		"eps": 1e-15,
 		"l2_reg": 1e-6
 	},
-	"motion_model": {
-		"config": "configs/dataset/dhd_motion_300.json",
-		"load_path": "dataset_motion/motion_300"
+	"appearance_model": {
+		"config": "configs/dataset/ch_appearance_300.json",
+		"load_path": "dataset_appearance/appearance_300"
 	},
 	"pleth_encoding": {
 		"otype": "HashGrid",

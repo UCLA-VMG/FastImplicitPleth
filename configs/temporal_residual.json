@@ -22,9 +22,9 @@
 		"eps": 1e-15,
 		"l2_reg": 1e-6
 	},
-	"motion_model": {
-		"config": "configs/delta_motion.json",
-		"load_path": "v_84_2_motion/motion_model.pth"
+	"appearance_model": {
+		"config": "configs/cascaded_appearance.json",
+		"load_path": "v_84_2_appearance/appearance_model.pth"
 	},
 	"pleth_encoding": {
 		"otype": "HashGrid",

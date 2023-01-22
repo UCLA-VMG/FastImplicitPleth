@@ -154,7 +154,7 @@ def prpsd2(BVP, FS, LL_PR, UL_PR, BUTTER_ORDER=6, DETREND=False, PlotTF=False, F
     if BUTTER_ORDER:
         [b, a] = scipy.signal.butter(BUTTER_ORDER, [LL_PR/60, UL_PR/60], btype='bandpass', fs = FS)
     
-    BVP = scipy.signal.filtfilt(b, a, np.double(BVP))
+        BVP = scipy.signal.filtfilt(b, a, np.double(BVP))
     
     # Calculate the PSD and the mask for the desired range
     if RECT:
