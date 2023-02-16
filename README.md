@@ -1,5 +1,5 @@
 # FastImplicitPleth
-Repository for fast implicit representations for Plethysmography signals
+Repository for fast implicit representations for Plethysmography signals.
 
 This code has been tested on Ubuntu 20.04
 
