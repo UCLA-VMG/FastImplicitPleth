@@ -3,14 +3,14 @@ import pickle
 import argparse
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--root', default='/home/pradyumnachari/Documents/ImplicitPPG/SIGGRAPH_Data/rgb_files', type=str)
+parser.add_argument('--root', default='./rgb_files', type=str)
 parser.add_argument('--pkl', required=True, type=str)
 parser.add_argument('--cuda-dev', required=True, type=str)
 args = parser.parse_args()
 
 ROOT_PATH = args.root
 
-# '/home/pradyumnachari/Documents/ImplicitPPG/SIGGRAPH_Data/fl_l1.pkl'
+# './fl_l1.pkl'
 with open(args.pkl,'rb') as f:
     list_of_folders = pickle.load(f)
 
