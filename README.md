@@ -61,69 +61,26 @@ Hierarchy of the FastImplicitPleth dataset - RGB Files
 
 <hr/>
 
-<!-- ## NNDL Execution
+## NNDL Execution
+Before running the following commands, ensure that the configurations are flags are correctly set to run with your environment set up.
 
-Please make sure to navigate into the _nndl_ folder prior to running the following scripts.
+In particular, pay particular attention to `configs/dataset/ch_appearance_{set}.json` -> `checkpoints.dir`, and `configs/dataset/residual_{set}.json` -> `checkpoints.dir`; `appearance_model`.
 
-**(1) RGB / RF**
 
-Run the following command to train the rf and the rgb models.
-```
->> python {rf or rgb}/train.py --train-shuffle --verbose
-```
+1. Run `python auto_dataset_appearance.py`
+2. Run `python auto_dataset_residual.py`
+3. Run `inference.ipynb`
 
-Run the following command to test the rf and the rgb models.
-```
->> python {rf or rgb}/test.py --verbose
-```
 
-**(2) Fusion Data Generation**
-
-Run the following command to generate the pickle file with the data for the fusion model.
-```
->> python data/fusion_gen.py --verbose
-```
-
-**(3) Fusion**
-
-Run the following command to train the fusion model.
-```
->> python fusion/train.py --shuffle --verbose
-```
-
-Run the following command to test the fusion model.
-```
->> python fusion/test.py --verbose
-```
-
-**(4) Command Line Args**
-
-For more info about the command line arguments, please run the following:
-```
->> python {folder}/file.py --help
-```
-
-<hr/>
-
-## References
-
-1) Zheng, Tianyue, et al. "MoRe-Fi: Motion-robust and Fine-grained Respiration Monitoring via Deep-Learning UWB Radar." Proceedings of the 19th ACM Conference on Embedded Networked Sensor Systems. 2021.
-
-2) Yu, Zitong, Xiaobai Li, and Guoying Zhao. "Remote photoplethysmograph signal measurement from facial videos using spatio-temporal networks." arXiv preprint arXiv:1905.02419 (2019).
-
-<hr />
 
 ## Citation
 
 ```
-@article{vilesov2022blending,
-  title={Blending camera and 77 GHz radar sensing for equitable, robust plethysmography},
-  author={Vilesov, Alexander and Chari, Pradyumna and Armouti, Adnan and Harish, Anirudh Bindiganavale and Kulkarni, Kimaya and Deoghare, Ananya and Jalilian, Laleh and Kadambi, Achuta},
-  journal={ACM Transactions on Graphics (TOG)},
-  volume={41},
-  number={4},
-  pages={1--14},
-  year={2022},
-  publisher={ACM New York, NY, USA}
+@inproceedings{chari2024implicit,
+  title={Implicit Neural Models to Extract Heart Rate from Video},
+  author={Chari, Pradyumna and Harish, Anirudh Bindiganavale and Armouti, Adnan and Vilesov, Alexander and Sarda, Sanjit and Jalilian, Laleh and Kadambi, Achuta},
+  booktitle={European conference on computer vision},
+  year={2024},
+  organization={Springer}
 }
-``` -->
+```
