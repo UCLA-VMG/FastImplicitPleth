@@ -18,6 +18,7 @@ CKPTS/
 *.pth
 *.pickle
 *.txt
+rgb_files/
 # Used to store temporary fucntions and configs
 ____temp*
 
