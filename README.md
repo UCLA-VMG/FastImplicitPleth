@@ -69,9 +69,14 @@ In particular, pay particular attention to `configs/dataset/ch_appearance_{set}.
 
 1. Run `python auto_dataset_appearance.py`
 2. Run `python auto_dataset_residual.py`
-3. Run `inference.ipynb`
+3. Run `train_code_for_masks.ipynb`
+4. Run `inference.ipynb`
 
-
+When running the `inference.ipynb`, please edit the following 4 paths
+1. `video_path` = path to the video file/folder (file if video OR folder if a group of image files)
+2. `gt_path` = path to the npy file containing the ground truth ppg
+3. `pleth_model_path` = path to the extract pleth data from step 2
+4. `mask_model_path` = path to the trained mask model from step 3
 
 ## Citation
 
