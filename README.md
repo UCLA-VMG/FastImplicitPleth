@@ -72,11 +72,18 @@ In particular, pay particular attention to `configs/dataset/ch_appearance_{set}.
 3. Run `train_code_for_masks.ipynb`
 4. Run `inference.ipynb`
 
-When running the `inference.ipynb`, please edit the following 4 paths
+For the train_code_for_masks.ipynb, the user would need to structure the dataset similarly to the reference dataset mentioned in the paper. Additionally, the Residual Plethysmograph would need to be queried before running the notebook, and the outputs would need to be saved in the appropriate format.
+
+For the inference step, the notebook uses the Residual Plethysmograph model to query the 3-D spatio-temporal grid to automatically generate the residual outputs. It uses these outputs with the raw RGB frames to generate the masks from the trained mask model. The mask and the post-processing logic are then used to benchmark the estimates with ground truth plethysmograph. For this notebook, there are 2 main cells to edit: one for the video and ground truth paths (and their configurations). The second cell is for the model load paths. The 4 paths to edit are as follows:
+
 1. `video_path` = path to the video file/folder (file if video OR folder if a group of image files)
 2. `gt_path` = path to the npy file containing the ground truth ppg
 3. `pleth_model_path` = path to the extract pleth data from step 2
 4. `mask_model_path` = path to the trained mask model from step 3
+
+# Recommended File Location
+
+By default the notebooks look for `vid.avi` and `ppg.npy` (1-D signal) in the `assets` folder. These are, by default, expected at a sampling frequency of `fs=30`.
 
 ## Citation
 
