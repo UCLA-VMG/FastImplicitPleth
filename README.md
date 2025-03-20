@@ -3,6 +3,15 @@ Repository for fast implicit representations for Plethysmography signals.
 
 This code has been tested on Ubuntu 20.04
 
+# Implicit Neural Models to Extract Heart Rate from Video
+
+> __Implicit Neural Models to Extract Heart Rate from Video__  
+> [Pradyumna Chari*](https://pradyumnachari.github.io/), [Anirudh Bindiganavale Harish*](https://anirudhbharish.github.io/), [Adnan Armouti](https://adnan-armouti.github.io/), [Alexander Vilesov](https://asvilesov.github.io/), [Sanjit Sarda](https://sanit1.github.io/), [Laleh Jalilian](https://www.uclahealth.org/laleh-jalilian/), [Achuta Kadambi](https://www.ee.ucla.edu/achuta-kadambi/)<br/>
+
+For details on the citation format, kindly refer to the [Citation](https://github.com/UCLA-VMG/FastImplicitPleth#citation) section below.
+
+<hr /> 
+
 # Requirements (Most Relevant)
 - [CUDA Toolkit 11.7](https://developer.nvidia.com/cuda-11-7-0-download-archive)
 - [torch](https://pytorch.org/get-started/locally/)
@@ -12,16 +21,9 @@ This code has been tested on Ubuntu 20.04
 - [Siren model](https://colab.research.google.com/github/vsitzmann/siren/blob/master/explore_siren.ipynb#scrollTo=gupA19Fc2kvw)
 - [Deep Physiological Sensing toolbox](https://github.com/ubicomplab/rPPG-Toolbox)
 
-
-
-# Implicit Neural Models to Extract Heart Rate from Video
-
-> __Implicit Neural Models to Extract Heart Rate from Video__  
-> [Pradyumna Chari](https://pradyumnachari.github.io/), [Anirudh Bindiganavale Harish](https://anirudhbharish.github.io/), [Adnan Armouti](https://adnan-armouti.github.io/), [Alexander Vilesov](https://asvilesov.github.io/), [Sanjit Sarda](https://sanit1.github.io/), [Laleh Jalilian](https://www.uclahealth.org/laleh-jalilian/), [Achuta Kadambi](https://www.ee.ucla.edu/achuta-kadambi/)<br/>
-
-For details on the citation format, kindly refer to the [Citation](https://github.com/UCLA-VMG/FastImplicitPleth#citation) section below.
-
 <hr /> 
+
+
 
 ## Dataset and Pre-prep
 
