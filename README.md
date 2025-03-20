@@ -17,7 +17,7 @@ This code has been tested on Ubuntu 20.04
 # Implicit Neural Models to Extract Heart Rate from Video
 
 > __Implicit Neural Models to Extract Heart Rate from Video__  
-> [Pradyumna Chari](https://pradyumnachari.github.io/), [Anirudh Bindiganavale Harish](https://anirudh0707.github.io/), [Adnan Armouti](https://adnan-armouti.github.io/), [Alexander Vilesov](https://asvilesov.github.io/), [Sanjit Sarda](https://sanit1.github.io/), [Laleh Jalilian](https://www.uclahealth.org/laleh-jalilian/), [Achuta Kadambi](https://www.ee.ucla.edu/achuta-kadambi/)<br/>
+> [Pradyumna Chari](https://pradyumnachari.github.io/), [Anirudh Bindiganavale Harish](https://anirudhbharish.github.io/), [Adnan Armouti](https://adnan-armouti.github.io/), [Alexander Vilesov](https://asvilesov.github.io/), [Sanjit Sarda](https://sanit1.github.io/), [Laleh Jalilian](https://www.uclahealth.org/laleh-jalilian/), [Achuta Kadambi](https://www.ee.ucla.edu/achuta-kadambi/)<br/>
 
 For details on the citation format, kindly refer to the [Citation](https://github.com/UCLA-VMG/FastImplicitPleth#citation) section below.
 
