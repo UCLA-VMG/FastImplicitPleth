@@ -27,7 +27,7 @@ For details on the citation format, kindly refer to the [Citation](https://githu
 
 ## Dataset and Pre-prep
 
-The FastImplicitPleth dataset can be downloaded by filling this [Google Form](https://forms.gle/mUg2WozmtUh2MBzRA).
+The FastImplicitPleth dataset can be downloaded by filling this [Google Form](https://forms.gle/mUg2WozmtUh2MBzRA). If you use any of the images within a presentation, paper, or website, you must blur or anonymize the face for privacy purposes!
 
 If you choose to collect your own data, use a face cropping software (MTCNN in our case) to crop the face and save each frame as an image within the trial/volunteer's folder to the following pre-processing instructions to obtain a similar dataset to the FastImplicitPleth dataset.
 
