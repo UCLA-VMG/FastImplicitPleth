@@ -7,6 +7,7 @@ This code has been tested on Ubuntu 20.04
 
 > __Implicit Neural Models to Extract Heart Rate from Video__  
 > [Pradyumna Chari*](https://pradyumnachari.github.io/), [Anirudh Bindiganavale Harish*](https://anirudhbharish.github.io/), [Adnan Armouti](https://adnan-armouti.github.io/), [Alexander Vilesov](https://asvilesov.github.io/), [Sanjit Sarda](https://sanit1.github.io/), [Laleh Jalilian](https://www.uclahealth.org/laleh-jalilian/), [Achuta Kadambi](https://www.ee.ucla.edu/achuta-kadambi/)<br/>
+> ECCV 2024 · [Project page](https://implicitppg.github.io/) · [Paper](https://www.ecva.net/papers/eccv_2024/papers_ECCV/papers/10941.pdf)
 
 For details on the citation format, kindly refer to the [Citation](https://github.com/UCLA-VMG/FastImplicitPleth#citation) section below.
 
@@ -29,7 +30,7 @@ For details on the citation format, kindly refer to the [Citation](https://githu
 
 The FastImplicitPleth dataset can be downloaded by filling this [Google Form](https://forms.gle/mUg2WozmtUh2MBzRA). If you use any of the images within a presentation, paper, or website, you must blur or anonymize the face for privacy purposes!
 
-If you choose to collect your own data, use a face cropping software (MTCNN in our case) to crop the face and save each frame as an image within the trial/volunteer's folder to the following pre-processing instructions to obtain a similar dataset to the FastImplicitPleth dataset.
+If you choose to collect your own data, use a face cropping software (MTCNN in our case) to crop the face and save each frame as an image within the trial/volunteer's folder, following the pre-processing instructions below, to obtain a similar dataset to the FastImplicitPleth dataset.
 
 Hierarchy of the FastImplicitPleth dataset - RGB Files (Ensure all images are the same size prior to running the code in this repo)
 ```
@@ -64,9 +65,9 @@ Hierarchy of the FastImplicitPleth dataset - RGB Files (Ensure all images are th
 <hr/>
 
 ## NNDL Execution
-Before running the following commands, ensure that the configurations are flags are correctly set to run with your environment set up.
+Before running the following commands, ensure that the configurations and flags are correctly set to run with your environment set up.
 
-In particular, pay particular attention to `configs/dataset/ch_appearance_{set}.json` -> `checkpoints.dir`, and `configs/dataset/residual_{set}.json` -> `checkpoints.dir`; `appearance_model`.
+In particular, pay attention to `configs/dataset/ch_appearance_{set}.json` -> `checkpoints.dir`, and `configs/dataset/residual_{set}.json` -> `checkpoints.dir`; `appearance_model`.
 
 
 1. Run `python auto_dataset_appearance.py`
@@ -93,7 +94,7 @@ By default the notebooks look for `vid.avi` and `ppg.npy` (1-D signal) in the `a
 @inproceedings{chari2024implicit,
   title={Implicit Neural Models to Extract Heart Rate from Video},
   author={Chari, Pradyumna and Harish, Anirudh Bindiganavale and Armouti, Adnan and Vilesov, Alexander and Sarda, Sanjit and Jalilian, Laleh and Kadambi, Achuta},
-  booktitle={European conference on computer vision},
+  booktitle={European Conference on Computer Vision (ECCV)},
   year={2024},
   organization={Springer}
 }
